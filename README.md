@@ -15,6 +15,7 @@ Every problem folder has the same structure:
 <!-- INDEX:START -->
 | # | Problem |
 |---|---|
+| 001 | [Leaked user table with unsalted SHA-1 passwords: migrate without forcing 2M resets](problems/001-legacy-password-hash-migration) |
 <!-- INDEX:END -->
 
 ## Run the tests
