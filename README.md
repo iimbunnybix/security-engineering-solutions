@@ -19,6 +19,7 @@ Every problem folder has the same structure:
 | 002 | [A cloud access key was pushed to a public repo and abused within 11 minutes](problems/002-pre-commit-secret-scanner) |
 | 003 | [Webhook test button returned the server's cloud credentials to a customer](problems/003-ssrf-webhook-url-guard) |
 | 004 | [Any logged-in user could become admin by editing their own session token](problems/004-jwt-alg-none-verification) |
+| 005 | [Users' account emails were changed to attacker addresses after they visited an unrelated website](problems/005-csrf-email-change-takeover) |
 <!-- INDEX:END -->
 
 ## Run the tests
