@@ -24,6 +24,7 @@ Every problem folder has the same structure:
 | 007 | [A user reset her password after losing her laptop, and the laptop stayed logged in](problems/007-session-revocation-password-reset) |
 | 008 | [During an internal investigation, nobody could prove whether the admin audit log had been edited](problems/008-tamper-evident-audit-log) |
 | 009 | [A pentester pulled the admin's API token hash out of the product catalog just by changing the "sort by" option](problems/009-order-by-sql-injection) |
+| 010 | [A customer downloaded the server's database password through the "download your export" link](problems/010-path-traversal-file-download) |
 <!-- INDEX:END -->
 
 ## Run the tests
