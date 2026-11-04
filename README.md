@@ -22,6 +22,7 @@ Every problem folder has the same structure:
 | 005 | [Users' account emails were changed to attacker addresses after they visited an unrelated website](problems/005-csrf-email-change-takeover) |
 | 006 | [A customer changed one digit in an invoice URL and downloaded another company's invoices](problems/006-idor-invoice-download) |
 | 007 | [A user reset her password after losing her laptop, and the laptop stayed logged in](problems/007-session-revocation-password-reset) |
+| 008 | [During an internal investigation, nobody could prove whether the admin audit log had been edited](problems/008-tamper-evident-audit-log) |
 <!-- INDEX:END -->
 
 ## Run the tests
