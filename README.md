@@ -17,6 +17,7 @@ Every problem folder has the same structure:
 |---|---|
 | 001 | [Leaked user table with unsalted SHA-1 passwords: migrate without forcing 2M resets](problems/001-legacy-password-hash-migration) |
 | 002 | [A cloud access key was pushed to a public repo and abused within 11 minutes](problems/002-pre-commit-secret-scanner) |
+| 003 | [Webhook test button returned the server's cloud credentials to a customer](problems/003-ssrf-webhook-url-guard) |
 <!-- INDEX:END -->
 
 ## Run the tests
