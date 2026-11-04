@@ -26,6 +26,7 @@ Every problem folder has the same structure:
 | 009 | [A pentester pulled the admin's API token hash out of the product catalog just by changing the "sort by" option](problems/009-order-by-sql-injection) |
 | 010 | [A customer downloaded the server's database password through the "download your export" link](problems/010-path-traversal-file-download) |
 | 011 | [Customers logged in through a link in a phishing email and were sent to a fake "session expired" page that stole their passwords](problems/011-open-redirect-after-login) |
+| 012 | [Attackers reset other users' passwords without ever seeing the reset email](problems/012-predictable-password-reset-tokens) |
 <!-- INDEX:END -->
 
 ## Run the tests
