@@ -68,5 +68,25 @@ class ScannerTests(unittest.TestCase):
             self.assertEqual(main([env, clean]), 1)
 
 
+class HexKeyTests(unittest.TestCase):
+    """Hex alphabets max out at 4.0 bits/char, so they need their own limit (issue #3)."""
+
+    def test_random_hex_api_keys_are_flagged(self):
+        hex_rng = random.Random(7)
+        for _ in range(200):
+            fake_hex_key = "".join(hex_rng.choice("0123456789abcdef") for _ in range(32))
+            rules = {f.rule for f in scan_text(f"API_KEY={fake_hex_key}")}
+            self.assertEqual(rules, {"high_entropy_assignment"}, fake_hex_key)
+
+    def test_repetitive_hex_value_is_not_flagged(self):
+        self.assertEqual(scan_text("token = deadbeefdeadbeef"), [])
+
+    def test_all_digit_value_is_not_treated_as_hex(self):
+        self.assertEqual(scan_text("token_ttl_ms = 86400000123456"), [])
+
+    def test_ordinary_word_in_assignment_is_not_flagged(self):
+        self.assertEqual(scan_text("token_type = authentication"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

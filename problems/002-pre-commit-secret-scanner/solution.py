@@ -21,6 +21,14 @@ ASSIGNMENT = re.compile(
 PLACEHOLDER = re.compile(r"(?i)^(changeme|password|example|dummy|test|xxx+|\*+|<.*>|\$\{.*\}|\{\{.*\}\}|none|null|true|false)$")
 ALLOW_MARKER = "secret-scan: allow"
 
+# Base64-style secrets use ~64 symbols and random ones score well above 4.0
+# bits/char. Hex has only 16 symbols, so its ceiling is log2(16) = 4.0 and
+# random hex keys score about 3.6-3.9: they need a lower, hex-specific limit.
+BASE64_ENTROPY_LIMIT = 4.0
+HEX_ENTROPY_LIMIT = 3.0
+MIN_HEX_SECRET_LENGTH = 16
+HEX_DIGITS = frozenset("0123456789abcdefABCDEF")
+
 
 @dataclass(frozen=True)
 class Finding:
@@ -36,6 +44,26 @@ def shannon_entropy(s: str) -> float:
         return 0.0
     counts = Counter(s)
     return -sum(c / len(s) * math.log2(c / len(s)) for c in counts.values())
+
+
+def looks_like_hex_secret(value: str) -> bool:
+    """True for long hex strings that mix letters and digits.
+
+    All-digit values (timeouts, IDs) are excluded, because they are rarely
+    keys and would otherwise pass the lower hex entropy limit.
+    """
+    if len(value) < MIN_HEX_SECRET_LENGTH or not set(value) <= HEX_DIGITS:
+        return False
+    has_digit = any(ch.isdigit() for ch in value)
+    has_letter = any(ch.isalpha() for ch in value)
+    return has_digit and has_letter
+
+
+def is_high_entropy(value: str) -> bool:
+    """Apply the entropy limit that matches the value's alphabet."""
+    if looks_like_hex_secret(value):
+        return shannon_entropy(value) >= HEX_ENTROPY_LIMIT
+    return shannon_entropy(value) >= BASE64_ENTROPY_LIMIT
 
 
 def mask(secret: str) -> str:
@@ -59,7 +87,7 @@ def scan_text(text: str, path: str = "<text>", allowlist: frozenset = frozenset(
             value = m.group(2)
             if value in hits or PLACEHOLDER.match(value) or len(value) < 8:
                 continue
-            if shannon_entropy(value) >= 4.0 or len(value) >= 12 and "password" in m.group(1).lower():
+            if is_high_entropy(value) or len(value) >= 12 and "password" in m.group(1).lower():
                 hits[value] = "high_entropy_assignment"
         for secret, rule in hits.items():
             fp = _fp(secret)

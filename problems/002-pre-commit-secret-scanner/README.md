@@ -17,8 +17,10 @@ A dependency-free **pre-commit secret scanner**:
 
 - **Known patterns:** cloud access key IDs, GitHub/Slack tokens, private key
   headers, JWTs, and `password=`/`api_key=`-style assignments.
-- **Entropy check:** long random-looking strings in assignments (Shannon
-  entropy ≥ 4.0 bits/char) catch secrets that have no known prefix.
+- **Entropy check:** random-looking strings in assignments catch secrets
+  that have no known prefix. The limit depends on the alphabet: ≥ 4.0
+  bits/char for base64-style values, and ≥ 3.0 for hex values of 16+
+  characters, because hex can never exceed log2(16) = 4.0 bits/char.
 - **Low noise:** ignores obvious placeholders (`changeme`, `xxxx`, `<your-key>`,
   `${ENV_VAR}`), and supports an inline `# secret-scan: allow` marker and an
   allowlist of fingerprints for reviewed false positives.
@@ -33,6 +35,11 @@ does not un-leak a key that bots have already copied.
 - Regex + entropy has false positives (hashes, UUIDs) and false negatives
   (short or low-entropy passwords); tools like gitleaks/trufflehog add
   hundreds of rules and live verification.
+- Short random tokens (under ~16 characters) cannot be told apart from
+  ordinary identifiers by entropy alone: a 12-character random token and
+  `localhost:5432` score about the same, so short tokens are only caught by
+  the password-name rule or a known prefix. Even for 32-character hex
+  keys, roughly 1 in 20,000 random keys scores just under 3.0 and is missed.
 - Client-side hooks can be skipped (`--no-verify`); run the same scan in CI
   and enable the hosting platform's push protection as well.
 
