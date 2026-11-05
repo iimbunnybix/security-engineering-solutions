@@ -36,6 +36,7 @@ Every problem folder has the same structure:
 | 019 | [Bulk-import workers crashed with out-of-memory errors after a customer uploaded a 64 KB ZIP](problems/019-zip-bomb-upload-limits) |
 | 020 | [Customers found strangers placing orders from their accounts after logging in from a link in a "support" email](problems/020-session-fixation-login-rotation) |
 | 021 | [Opening the admin "customers" CSV export sent customer data to an unknown website](problems/021-csv-formula-injection-export) |
+| 022 | [Any website a customer visited could read their account details and API keys](problems/022-cors-origin-reflection-credentials) |
 <!-- INDEX:END -->
 
 ## Run the tests
