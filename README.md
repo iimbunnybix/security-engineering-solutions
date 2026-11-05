@@ -43,6 +43,7 @@ Every problem folder has the same structure:
 | 026 | [Invoice download links that "expire after one hour" still worked months later after changing one number in the URL](problems/026-signed-url-unsigned-expiry) |
 | 027 | [A read-only reporting token was accepted by the payments admin API and used to issue refunds](problems/027-jwt-audience-confusion-cross-service) |
 | 028 | [Accounts with SMS two-factor login were taken over by scripts that guessed the 6-digit code](problems/028-mfa-code-brute-force-attempt-limit) |
+| 029 | [The login rate limiter and admin IP allowlist were bypassed by sending a fake X-Forwarded-For header](problems/029-x-forwarded-for-spoofed-client-ip) |
 <!-- INDEX:END -->
 
 ## Run the tests
