@@ -97,6 +97,16 @@ class SecureTokens(unittest.TestCase):
         self.assertIsNone(svc.redeem(dumped[0].hex()))     # hash is not a usable token
         self.assertEqual(svc.redeem(token), "u1")
 
+    def test_non_default_token_sizes_round_trip(self):
+        for size in (16, 24, 160):
+            svc = ResetTokenService(Clock(), token_bytes=size)
+            token = svc.request_reset("u1")
+            self.assertEqual(svc.redeem(token), "u1")
+
+    def test_too_few_token_bytes_is_rejected_at_construction(self):
+        with self.assertRaises(ValueError):
+            ResetTokenService(Clock(), token_bytes=12)
+
     def test_malformed_input(self):
         svc = ResetTokenService(Clock())
         svc.request_reset("u1")

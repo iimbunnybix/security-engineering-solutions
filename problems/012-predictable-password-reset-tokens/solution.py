@@ -74,6 +74,10 @@ class _Record:
     used: bool = False
 
 
+# NIST and OWASP recommend at least 128 bits of randomness for reset tokens.
+MIN_TOKEN_BYTES = 16
+
+
 def _hash(token: str) -> bytes:
     return hashlib.sha256(token.encode()).digest()
 
@@ -85,6 +89,19 @@ class ResetTokenService:
     token_bytes: int = 32
     _by_hash: Dict[bytes, _Record] = field(default_factory=dict)
     _latest_for_user: Dict[str, bytes] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        """Reject weak settings and derive the exact token length to accept.
+
+        The accepted length comes from ``token_bytes`` rather than a fixed
+        range; a hard-coded range made every token unredeemable as soon as
+        someone configured a different size.
+        """
+        if self.token_bytes < MIN_TOKEN_BYTES:
+            raise ValueError(f"token_bytes must be at least {MIN_TOKEN_BYTES}")
+        # token_urlsafe(n) always returns the same number of characters for a
+        # given n (base64 without padding), so one sample gives the length.
+        self._token_length = len(secrets.token_urlsafe(self.token_bytes))
 
     def request_reset(self, user_id: str) -> str:
         """Create a token, invalidate older ones for this user, return the raw token.
@@ -102,7 +119,7 @@ class ResetTokenService:
 
     def redeem(self, token: str) -> Optional[str]:
         """Return the user id if ``token`` is valid, and consume it. Else None."""
-        if not isinstance(token, str) or not 20 <= len(token) <= 200:
+        if not isinstance(token, str) or len(token) != self._token_length:
             return None
         h = _hash(token)
         rec = self._by_hash.get(h)
