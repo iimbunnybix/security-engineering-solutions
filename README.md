@@ -28,6 +28,7 @@ Every problem folder has the same structure:
 | 011 | [Customers logged in through a link in a phishing email and were sent to a fake "session expired" page that stole their passwords](problems/011-open-redirect-after-login) |
 | 012 | [Attackers reset other users' passwords without ever seeing the reset email](problems/012-predictable-password-reset-tokens) |
 | 013 | [A free-tier user made himself an organisation admin by adding one field to the "edit profile" request](problems/013-mass-assignment-role-escalation) |
+| 014 | [Support agents' accounts started closing tickets and issuing refunds on their own after opening one customer's ticket](problems/014-stored-xss-admin-panel) |
 <!-- INDEX:END -->
 
 ## Run the tests
