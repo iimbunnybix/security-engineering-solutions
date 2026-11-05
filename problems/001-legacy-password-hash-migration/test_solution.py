@@ -72,5 +72,26 @@ class FixUnknownUserTiming(unittest.TestCase):
         self.assertEqual(unknown_calls, known_calls)
 
 
+class FixMalformedStoredHash(unittest.TestCase):
+    """Issue #2: a corrupted stored hash must fail closed, not raise."""
+
+    def test_non_numeric_iteration_count_is_rejected(self):
+        self.assertFalse(verify("x", "pbkdf2_sha256$abc$AAAA$AAAA"))
+
+    def test_zero_iterations_is_rejected(self):
+        self.assertFalse(verify("x", "pbkdf2_sha256$0$AAAA$AAAA"))
+
+    def test_invalid_base64_is_rejected(self):
+        self.assertFalse(verify("x", "wrapped$1000$***$AAAA"))
+
+    def test_malformed_hash_needs_rehash(self):
+        self.assertTrue(needs_rehash("pbkdf2_sha256$abc$AAAA$AAAA", FAST))
+
+    def test_login_with_corrupted_row_returns_false(self):
+        store = UserStore(iterations=FAST)
+        store.hashes = {"asha": "pbkdf2_sha256$abc$AAAA$AAAA"}
+        self.assertFalse(store.login("asha", "monsoon2024"))
+
+
 if __name__ == "__main__":
     unittest.main()

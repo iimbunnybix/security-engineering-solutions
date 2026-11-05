@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 import hashlib
 import hmac
 import secrets
@@ -29,21 +30,43 @@ def wrap_legacy_sha1(sha1_hex: str, iterations: int = DEFAULT_ITERATIONS) -> str
     return f"wrapped${iterations}${_b64(salt)}${_b64(_pbkdf2(sha1_hex.lower(), salt, iterations))}"
 
 
-def verify(password: str, stored: str) -> bool:
+def parse_versioned_hash(stored: str) -> tuple[str, int, bytes, bytes] | None:
+    """Split "kind$iterations$salt$hash" into parts, or None if it is malformed.
+
+    A corrupted row (bad migration batch, manual edit) must make login fail
+    closed, not raise and turn into an HTTP 500.
+    """
     parts = stored.split("$")
-    if len(parts) == 4 and parts[0] in (ALGO, "wrapped"):
-        kind, iters, salt_b64, hash_b64 = parts
+    if len(parts) != 4 or parts[0] not in (ALGO, "wrapped"):
+        return None
+    kind, iters_text, salt_b64, hash_b64 = parts
+    try:
+        iterations = int(iters_text)
+        salt = base64.b64decode(salt_b64, validate=True)
+        expected = base64.b64decode(hash_b64, validate=True)
+    except (ValueError, binascii.Error):
+        return None
+    if iterations <= 0:
+        return None
+    return kind, iterations, salt, expected
+
+
+def verify(password: str, stored: str) -> bool:
+    parsed = parse_versioned_hash(stored)
+    if parsed is not None:
+        kind, iterations, salt, expected = parsed
         secret = password if kind == ALGO else hashlib.sha1(password.encode()).hexdigest()
-        candidate = _pbkdf2(secret, base64.b64decode(salt_b64), int(iters))
-        return hmac.compare_digest(candidate, base64.b64decode(hash_b64))
+        return hmac.compare_digest(_pbkdf2(secret, salt, iterations), expected)
+    if "$" in stored:                                       # versioned but malformed
+        return False
     if len(stored) == 40:                                   # raw legacy sha1, not yet wrapped
         return hmac.compare_digest(hashlib.sha1(password.encode()).hexdigest(), stored.lower())
     return False
 
 
 def needs_rehash(stored: str, iterations: int = DEFAULT_ITERATIONS) -> bool:
-    parts = stored.split("$")
-    return not (len(parts) == 4 and parts[0] == ALGO and int(parts[1]) >= iterations)
+    parsed = parse_versioned_hash(stored)
+    return not (parsed is not None and parsed[0] == ALGO and parsed[1] >= iterations)
 
 
 class UserStore:
