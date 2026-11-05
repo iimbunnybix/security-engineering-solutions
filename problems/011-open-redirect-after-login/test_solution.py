@@ -75,5 +75,25 @@ class SafeRedirectFix(unittest.TestCase):
         self.assertEqual(safe_redirect_target("/dashboard  "), "/dashboard")
 
 
+class FixNonAsciiLocationHeader(unittest.TestCase):
+    def test_c1_control_character_falls_back_to_default(self):
+        self.assertEqual(safe_redirect_target("/\x85/evil.example", ALLOWED), DEFAULT_TARGET)
+
+    def test_line_separator_is_percent_encoded(self):
+        self.assertEqual(safe_redirect_target("/reports/q3\u2028summary", ALLOWED),
+                         "/reports/q3%E2%80%A8summary")
+
+    def test_unicode_query_and_fragment_are_percent_encoded(self):
+        self.assertEqual(safe_redirect_target("/search?q=caf\u00e9#r\u00e9sum\u00e9"),
+                         "/search?q=caf%C3%A9#r%C3%A9sum%C3%A9")
+
+    def test_result_is_always_ascii_and_latin1_encodable(self):
+        for url in ["/r\u2028x", "https://app.example.com/\u00fcber", "/ok"]:
+            with self.subTest(url=url):
+                location = safe_redirect_target(url, ALLOWED)
+                self.assertTrue(location.isascii())
+                location.encode("latin-1")
+
+
 if __name__ == "__main__":
     unittest.main()
