@@ -71,6 +71,13 @@ class AuthService:
     sessions: dict[str, _Session] = field(default_factory=dict)   # sha256(token) -> session
 
     def register(self, user: str, password: str) -> None:
+        """Create a new account. Refuses an existing username.
+
+        Overwriting would restart ``session_epoch`` at 0 and bring revoked
+        epoch-0 sessions back to life for whoever owns the new account.
+        """
+        if user in self.users:
+            raise ValueError("username already registered")
         self.users[user] = _User(_hash_password(password, secrets.token_bytes(16)))
 
     def login(self, user: str, password: str) -> str | None:

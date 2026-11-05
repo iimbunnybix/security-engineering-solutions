@@ -66,6 +66,19 @@ class Revocation(unittest.TestCase):
         t = svc.login("asha", "correct horse battery")
         self.assertEqual(svc.authenticate(t), "asha")
 
+    def test_registering_an_existing_username_is_refused(self):
+        svc, _ = make()
+        with self.assertRaises(ValueError):
+            svc.register("asha", "someone else entirely")
+
+    def test_revoked_session_stays_dead_after_reregister_attempt(self):
+        svc, _ = make()
+        laptop = svc.login("asha", "correct horse battery")
+        svc.reset_password("asha", "a brand new passphrase")
+        with self.assertRaises(ValueError):
+            svc.register("asha", "someone else entirely")
+        self.assertIsNone(svc.authenticate(laptop))
+
 
 class Expiry(unittest.TestCase):
     def test_idle_timeout_and_sliding_activity(self):

@@ -31,7 +31,9 @@ authenticating after a reset.
 4. **Hardening.** Tokens are 32 random bytes; only their SHA-256 is stored, so
    a leaked session table cannot be replayed as cookies. Revoked or expired
    sessions are deleted when next seen. Failed password changes (wrong current
-   password, too short) revoke nothing.
+   password, too short) revoke nothing. Registering a username that already
+   exists is refused, because re-creating the user would restart its epoch
+   at 0 and revive sessions that were revoked at epoch 0.
 
 ## Trade-offs
 - Every request now needs the user's epoch. Cache it next to the session (or
