@@ -33,6 +33,7 @@ Every problem folder has the same structure:
 | 016 | [The same ₹50,000 partner payout went out twice, a week after it was approved](problems/016-webhook-signature-replay) |
 | 017 | [Signup API stopped responding when a bot submitted a few odd-looking email addresses](problems/017-redos-email-validation) |
 | 018 | [Customers reported "new device login" emails they never made, and dozens of accounts were drained of reward points](problems/018-credential-stuffing-login-throttle) |
+| 019 | [Bulk-import workers crashed with out-of-memory errors after a customer uploaded a 64 KB ZIP](problems/019-zip-bomb-upload-limits) |
 <!-- INDEX:END -->
 
 ## Run the tests
