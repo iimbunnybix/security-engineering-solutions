@@ -47,6 +47,7 @@ Every problem folder has the same structure:
 | 030 | [Attackers ran commands on the web servers by sending a crafted "remember me" cookie](problems/030-pickle-remember-me-cookie-rce) |
 | 031 | [Attackers signed in to customers' accounts with their own Google login after sending them a "verify your account" link](problems/031-oauth-missing-state-account-linking) |
 | 032 | [Ordinary customers opened the refunds admin page by typing /ADMIN/refunds instead of /admin/refunds](problems/032-admin-path-normalization-auth-bypass) |
+| 033 | [A spam crew knew exactly which leaked email addresses were real customers before sending them fake "your order is on hold" emails](problems/033-account-enumeration-reset-signup) |
 <!-- INDEX:END -->
 
 ## Run the tests
