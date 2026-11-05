@@ -30,6 +30,7 @@ class SSRFTests(unittest.TestCase):
             "mixed.example": [PUBLIC, "127.0.0.1"],
             "v6-mapped.example": ["::ffff:169.254.169.254"],
             "redirector.example": [PUBLIC],
+            "site-local.example": ["fec0::10"],
         })
         self.v = WebhookURLValidator(resolver=self.dns)
 
@@ -68,6 +69,13 @@ class SSRFTests(unittest.TestCase):
     def test_any_private_record_blocks(self):
         with self.assertRaises(BlockedURL):
             self.v.validate("https://mixed.example/")
+
+    def test_ipv6_site_local_address_is_not_public(self):
+        self.assertFalse(is_public_ip("fec0::1"))
+
+    def test_hostname_resolving_to_ipv6_site_local_blocked(self):
+        with self.assertRaises(BlockedURL):
+            self.v.validate("https://site-local.example/")
 
     def test_ipv4_mapped_ipv6_blocked(self):
         with self.assertRaises(BlockedURL):

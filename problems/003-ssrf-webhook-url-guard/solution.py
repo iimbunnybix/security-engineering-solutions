@@ -36,6 +36,9 @@ def system_resolver(host: str, port: int) -> list[str]:
 EXTRA_BLOCKED = [ipaddress.ip_network(n) for n in (
     "0.0.0.0/8", "100.64.0.0/10", "192.0.0.0/24", "198.18.0.0/15",
     "fc00::/7", "fe80::/10", "64:ff9b::/96",
+    # Deprecated IPv6 site-local (RFC 3879): still used for internal hosts on
+    # some networks, and Python 3.13 reports it as is_global.
+    "fec0::/10",
 )]
 
 
