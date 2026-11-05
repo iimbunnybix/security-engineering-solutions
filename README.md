@@ -44,6 +44,7 @@ Every problem folder has the same structure:
 | 027 | [A read-only reporting token was accepted by the payments admin API and used to issue refunds](problems/027-jwt-audience-confusion-cross-service) |
 | 028 | [Accounts with SMS two-factor login were taken over by scripts that guessed the 6-digit code](problems/028-mfa-code-brute-force-attempt-limit) |
 | 029 | [The login rate limiter and admin IP allowlist were bypassed by sending a fake X-Forwarded-For header](problems/029-x-forwarded-for-spoofed-client-ip) |
+| 030 | [Attackers ran commands on the web servers by sending a crafted "remember me" cookie](problems/030-pickle-remember-me-cookie-rce) |
 <!-- INDEX:END -->
 
 ## Run the tests
