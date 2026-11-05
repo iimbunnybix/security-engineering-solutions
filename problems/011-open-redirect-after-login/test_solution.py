@@ -95,5 +95,21 @@ class FixNonAsciiLocationHeader(unittest.TestCase):
                 location.encode("latin-1")
 
 
+class FixBackslashInQueryAndFragment(unittest.TestCase):
+    def test_backslash_in_query_is_preserved(self):
+        self.assertEqual(safe_redirect_target("/files?path=C:\\Users\\me", ALLOWED),
+                         "/files?path=C:\\Users\\me")
+
+    def test_backslash_in_fragment_is_preserved(self):
+        self.assertEqual(safe_redirect_target("/search?q=a\\b#x\\y"),
+                         "/search?q=a\\b#x\\y")
+
+    def test_backslash_before_query_is_still_rejected(self):
+        self.assertEqual(safe_redirect_target("/\\evil.example?next=1"), DEFAULT_TARGET)
+
+    def test_backslash_after_hash_does_not_hide_host(self):
+        self.assertEqual(safe_redirect_target("/#\\evil.example"), "/#\\evil.example")
+
+
 if __name__ == "__main__":
     unittest.main()

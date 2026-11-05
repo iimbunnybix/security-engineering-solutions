@@ -40,11 +40,21 @@ def _browser_normalize(value: str) -> str:
 
     Browsers strip leading/trailing C0 control characters and spaces, remove
     tab/CR/LF anywhere in the URL, and treat ``\\`` like ``/`` for http(s)
-    and scheme-relative URLs.
+    and scheme-relative URLs -- but only before the query or fragment. A
+    backslash after ``?`` or ``#`` is plain data, so it is kept unchanged.
     """
     value = value.strip("".join(chr(c) for c in range(0x21)))
     value = value.replace("\t", "").replace("\r", "").replace("\n", "")
-    return value.replace("\\", "/")
+    head, tail = _split_before_query(value)
+    return head.replace("\\", "/") + tail
+
+
+def _split_before_query(value: str) -> tuple[str, str]:
+    """Split at the first ``?`` or ``#`` into (scheme/host/path, query+fragment)."""
+    for index, ch in enumerate(value):
+        if ch in "?#":
+            return value[:index], value[index:]
+    return value, ""
 
 
 def _is_control_character(ch: str) -> bool:
