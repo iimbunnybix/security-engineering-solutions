@@ -37,6 +37,7 @@ Every problem folder has the same structure:
 | 020 | [Customers found strangers placing orders from their accounts after logging in from a link in a "support" email](problems/020-session-fixation-login-rotation) |
 | 021 | [Opening the admin "customers" CSV export sent customer data to an unknown website](problems/021-csv-formula-injection-export) |
 | 022 | [Any website a customer visited could read their account details and API keys](problems/022-cors-origin-reflection-credentials) |
+| 023 | [Customer import returned the server's config file contents in the "name" column of the preview](problems/023-xxe-doctype-xml-upload) |
 <!-- INDEX:END -->
 
 ## Run the tests
