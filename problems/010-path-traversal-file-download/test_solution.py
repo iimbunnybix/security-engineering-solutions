@@ -112,6 +112,19 @@ class SafeDownload(Base):
         self.assertEqual(handle_download(self.lay.exports, "acme", "report.csv"),
                          (404, b"not found"))
 
+    def test_symlink_loop_raises_forbidden(self):
+        # Python 3.13+ raises OSError(ELOOP) here, 3.10-3.12 raise RuntimeError.
+        acme = self.lay.exports / "acme"
+        os.symlink(acme / "loop2", acme / "loop1")
+        os.symlink(acme / "loop1", acme / "loop2")
+        with self.assertRaises(Forbidden):
+            safe_resolve(self.lay.exports, "acme", "loop1")
+        self.assertEqual(handle_download(self.lay.exports, "acme", "loop1"), (404, b"not found"))
+
+    def test_unknown_tenant_raises_forbidden_not_oserror(self):
+        with self.assertRaises(Forbidden):
+            safe_resolve(self.lay.exports, "initech", "summary.csv")
+
     def test_directory_and_missing_rejected(self):
         for name in ("2026", "nope.csv"):
             self.assertEqual(handle_download(self.lay.exports, "acme", name)[0], 404)

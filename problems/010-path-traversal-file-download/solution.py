@@ -62,6 +62,20 @@ def validate_name(name: str) -> str:
     return name
 
 
+def resolve_existing(path: Path) -> Path:
+    """Resolve ``path`` (following symlinks) or raise Forbidden if that fails.
+
+    Missing files, symlink loops, permission errors and over-long names all
+    become Forbidden, so callers only ever see one exception type. A loop
+    raises RuntimeError on Python 3.10-3.12 but OSError (ELOOP) on 3.13+,
+    so both are caught.
+    """
+    try:
+        return path.resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise Forbidden("not found") from exc
+
+
 def safe_resolve(base_dir: str | Path, tenant_id: str, name: str) -> Path:
     """Return the real path of ``name`` inside ``base_dir/tenant_id`` or raise Forbidden.
 
@@ -71,11 +85,8 @@ def safe_resolve(base_dir: str | Path, tenant_id: str, name: str) -> Path:
     validate_name(name)
     if not tenant_id.isalnum():
         raise Forbidden("bad tenant")
-    root = (Path(base_dir) / tenant_id).resolve(strict=True)
-    try:
-        target = (root / name).resolve(strict=True)
-    except (FileNotFoundError, NotADirectoryError, RuntimeError) as exc:  # missing / loop
-        raise Forbidden("not found") from exc
+    root = resolve_existing(Path(base_dir) / tenant_id)
+    target = resolve_existing(root / name)
     if not target.is_relative_to(root):
         raise Forbidden("outside tenant directory")
     if not target.is_file():
