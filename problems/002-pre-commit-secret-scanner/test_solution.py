@@ -88,5 +88,25 @@ class HexKeyTests(unittest.TestCase):
         self.assertEqual(scan_text("token_type = authentication"), [])
 
 
+class QuotedValueTests(unittest.TestCase):
+    """Quoted values may contain spaces and '#' (issue #4)."""
+
+    def test_quoted_passphrase_with_spaces_is_flagged(self):
+        passphrase = " ".join(["correct", "horse", "battery", "staple"])
+        findings = scan_text(f'db_password = "{passphrase}"')
+        self.assertEqual([f.rule for f in findings], ["high_entropy_assignment"])
+        self.assertEqual(findings[0].fingerprint, scan_text(f"pw_password='{passphrase}'")[0].fingerprint)
+
+    def test_quoted_password_containing_hash_is_flagged(self):
+        password = "Tr0ub4dor" + "&3" + "#x9"
+        self.assertEqual(self.rules_for(f'password = "{password}"'), {"high_entropy_assignment"})
+
+    def test_hash_after_unquoted_value_is_still_a_comment(self):
+        self.assertEqual(scan_text("password = changeme  # set in prod"), [])
+
+    def rules_for(self, line):
+        return {f.rule for f in scan_text(line)}
+
+
 if __name__ == "__main__":
     unittest.main()

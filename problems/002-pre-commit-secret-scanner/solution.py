@@ -16,8 +16,11 @@ RULES: dict[str, re.Pattern] = {
     "private_key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----"),
     "jwt": re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"),
 }
+# Quoted values run to the closing quote (they may contain spaces or '#');
+# only unquoted values stop at whitespace or a '#' comment.
 ASSIGNMENT = re.compile(
-    r"""(?i)\b([a-z0-9_]*(?:password|passwd|secret|token|api_?key|access_?key)[a-z0-9_]*)\s*[:=]\s*["']?([^\s"'#]+)""")
+    r"""(?i)\b([a-z0-9_]*(?:password|passwd|secret|token|api_?key|access_?key)[a-z0-9_]*)\s*[:=]\s*"""
+    r"""(?:"([^"]*)"|'([^']*)'|([^\s"'#]+))""")
 PLACEHOLDER = re.compile(r"(?i)^(changeme|password|example|dummy|test|xxx+|\*+|<.*>|\$\{.*\}|\{\{.*\}\}|none|null|true|false)$")
 ALLOW_MARKER = "secret-scan: allow"
 
@@ -66,6 +69,14 @@ def is_high_entropy(value: str) -> bool:
     return shannon_entropy(value) >= BASE64_ENTROPY_LIMIT
 
 
+def assigned_value(match: re.Match) -> str:
+    """Return whichever value group matched: double-quoted, single-quoted or bare."""
+    for group_number in (2, 3, 4):
+        if match.group(group_number) is not None:
+            return match.group(group_number)
+    return ""
+
+
 def mask(secret: str) -> str:
     return secret[:4] + "*" * max(len(secret) - 4, 4) if len(secret) > 8 else "*" * 8
 
@@ -84,7 +95,7 @@ def scan_text(text: str, path: str = "<text>", allowlist: frozenset = frozenset(
             for m in pat.finditer(line):
                 hits[m.group(0)] = rule
         for m in ASSIGNMENT.finditer(line):
-            value = m.group(2)
+            value = assigned_value(m)
             if value in hits or PLACEHOLDER.match(value) or len(value) < 8:
                 continue
             if is_high_entropy(value) or len(value) >= 12 and "password" in m.group(1).lower():
