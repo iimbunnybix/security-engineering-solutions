@@ -132,6 +132,12 @@ class JWTTests(unittest.TestCase):
         with self.assertRaises(InvalidToken):
             self.v.verify(f"{header_seg}.{payload_seg}.A")
 
+    def test_non_string_kid_is_rejected(self):
+        for bad_kid in (["k1"], {}, 7):
+            token = f"{seg({'alg': 'HS256', 'kid': bad_kid})}.{seg(self.claims)}.sig"
+            with self.assertRaises(InvalidToken, msg=repr(bad_kid)):
+                self.v.verify(token)
+
     def test_weak_key_refused(self):
         with self.assertRaises(ValueError):
             StrictJWTVerifier({"k": secrets.token_bytes(16)}, "i", "a")

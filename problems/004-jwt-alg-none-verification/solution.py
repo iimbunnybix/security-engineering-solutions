@@ -85,6 +85,10 @@ class StrictJWTVerifier:
         if "crit" in header:
             raise InvalidToken("critical header extensions unsupported")
         kid = header.get("kid")
+        # kid is attacker-controlled JSON: a list/object is unhashable and
+        # would crash the dict lookup below, so only strings are accepted.
+        if kid is not None and not isinstance(kid, str):
+            raise InvalidToken("bad key id")
         key = self.keys.get(kid) if kid is not None else (
             next(iter(self.keys.values())) if len(self.keys) == 1 else None)
         if key is None:
