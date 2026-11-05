@@ -100,6 +100,31 @@ class Protected(Base):
         self.assertEqual(self.app.change_email_safe(req).status, 200)
 
 
+class MalformedOriginPorts(Base):
+    def request_with_origin(self, origin):
+        return Request("POST", "/account/email", headers={"Origin": origin},
+                       cookies={"session": self.sid},
+                       form={"email": "x@mail.example",
+                             "csrf_token": self.csrf.token_for(self.sid)})
+
+    def test_out_of_range_origin_port_is_blocked_with_403(self):
+        r = self.app.change_email_safe(self.request_with_origin(APP + ":99999"))
+        self.assertEqual(r.status, 403)
+        self.assertIn("cross-origin", r.body)
+
+    def test_non_numeric_origin_port_is_blocked_with_403(self):
+        r = self.app.change_email_safe(self.request_with_origin(APP + ":abc"))
+        self.assertEqual(r.status, 403)
+
+    def test_non_numeric_referer_port_is_blocked_with_403(self):
+        req = Request("POST", "/account/email", headers={"Referer": APP + ":abc/settings"},
+                      cookies={"session": self.sid})
+        self.assertEqual(self.app.change_email_safe(req).status, 403)
+
+    def test_malformed_port_normalises_to_none(self):
+        self.assertIsNone(_origin_of("https://bank.example:99999"))
+
+
 class Config(unittest.TestCase):
     def test_short_key_rejected(self):
         with self.assertRaises(ValueError):

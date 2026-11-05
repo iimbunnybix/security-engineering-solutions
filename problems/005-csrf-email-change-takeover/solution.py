@@ -66,14 +66,19 @@ class SessionStore:
 
 
 def _origin_of(url: str) -> str | None:
+    """Normalise a URL to ``scheme://host[:port]``; None if it is not valid."""
     try:
         u = urlsplit(url)
+        if u.scheme not in ("http", "https") or not u.hostname:
+            return None
+        # urlsplit checks the port lazily: reading ``u.port`` raises
+        # ValueError for "abc" or 99999, so it must stay inside the try.
+        # Otherwise a bad header crashes the guard (HTTP 500) instead of 403.
+        explicit_port = u.port
     except ValueError:
         return None
-    if u.scheme not in ("http", "https") or not u.hostname:
-        return None
     default = {"http": 80, "https": 443}[u.scheme]
-    port = u.port or default
+    port = explicit_port or default
     host = u.hostname.lower()
     return f"{u.scheme}://{host}" + ("" if port == default else f":{port}")
 
