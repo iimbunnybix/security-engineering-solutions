@@ -126,6 +126,12 @@ class JWTTests(unittest.TestCase):
             with self.assertRaises(InvalidToken, msg=repr(t)[:30]):
                 self.v.verify(t)
 
+    def test_signature_with_impossible_base64_length_is_rejected(self):
+        header_seg, payload_seg, _ = self.tok().split(".")
+        # A 1-character segment can never be valid base64 (length % 4 == 1).
+        with self.assertRaises(InvalidToken):
+            self.v.verify(f"{header_seg}.{payload_seg}.A")
+
     def test_weak_key_refused(self):
         with self.assertRaises(ValueError):
             StrictJWTVerifier({"k": secrets.token_bytes(16)}, "i", "a")

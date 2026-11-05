@@ -28,6 +28,10 @@ def b64url_decode(seg: str) -> bytes:
     if not seg or any(c not in "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
                       for c in seg):
         raise InvalidToken("bad base64url segment")
+    # A length of 4n+1 cannot be produced by any byte string, and base64
+    # raises binascii.Error for it; turn that into the uniform InvalidToken.
+    if len(seg) % 4 == 1:
+        raise InvalidToken("bad base64url length")
     return base64.urlsafe_b64decode(seg + "=" * (-len(seg) % 4))
 
 
