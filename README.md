@@ -48,6 +48,7 @@ Every problem folder has the same structure:
 | 031 | [Attackers signed in to customers' accounts with their own Google login after sending them a "verify your account" link](problems/031-oauth-missing-state-account-linking) |
 | 032 | [Ordinary customers opened the refunds admin page by typing /ADMIN/refunds instead of /admin/refunds](problems/032-admin-path-normalization-auth-bypass) |
 | 033 | [A spam crew knew exactly which leaked email addresses were real customers before sending them fake "your order is on hold" emails](problems/033-account-enumeration-reset-signup) |
+| 034 | [Moderators who clicked a seller's profile picture to enlarge it had their account email changed to the attacker's](problems/034-svg-avatar-upload-stored-xss) |
 <!-- INDEX:END -->
 
 ## Run the tests
