@@ -2,7 +2,7 @@ import dataclasses
 import secrets
 import unittest
 
-from solution import AuditLog, plain_log_detects_tampering
+from solution import AuditLog, Entry, _canonical, _mac, plain_log_detects_tampering
 
 
 def new_log():
@@ -33,6 +33,27 @@ class HashChain(unittest.TestCase):
         log = new_log()
         log.checkpoint()
         self.assertTrue(log.verify().ok)
+
+    def test_forged_entry_signed_with_retired_key_is_rejected(self):
+        leaked_key = secrets.token_bytes(32)
+        log = AuditLog({"k1": leaked_key}, "k1")
+        log.append(1.0, "admin:a", "role.grant", "user:1")
+        log.rotate_key("k2", secrets.token_bytes(32))
+        log.append(2.0, "admin:a", "role.grant", "user:2")
+        prev = log.entries[-1].mac
+        forged_mac = _mac(leaked_key, _canonical(3, 3.0, "admin:x", "export.users", "tenant:acme",
+                                                 {}, "k1", prev))
+        log.entries.append(Entry(3, 3.0, "admin:x", "export.users", "tenant:acme", {}, "k1",
+                                 prev, forged_mac))
+        result = log.verify()
+        self.assertFalse(result.ok)
+        self.assertEqual(result.first_bad_seq, 3)
+        self.assertIn("retired key", result.reason)
+
+    def test_rotating_to_an_existing_key_id_is_refused(self):
+        log = new_log()
+        with self.assertRaises(ValueError):
+            log.rotate_key("k1", secrets.token_bytes(32))
 
     def test_edited_field_detected(self):
         log = new_log()

@@ -34,7 +34,7 @@ that write the log could also rewrite it.
    (e.g. object storage with an object lock, or a separate logging account).
    Verification checks every checkpoint, which catches truncation, and also
    catches a full rebuild of the chain by someone who *does* hold the key.
-5. Each entry has a `key_id`, so keys rotate without re-signing history.
+5. Each entry has a `key_id`, so keys rotate without re-signing history. A rotated-away key is recorded as retired at that sequence number, so an entry it signs later (for example with a leaked key) fails verification.
 
 ## Trade-offs
 - This makes tampering **evident**, not impossible: an attacker can still

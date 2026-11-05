@@ -65,10 +65,17 @@ class AuditLog:
             raise ValueError("active key id not in keyring")
         self.keys = dict(keys)
         self.active_key_id = active_key_id
+        # key_id -> last seq that key was allowed to sign. A rotated-away key
+        # may have leaked, so entries it signs after retirement are forgeries.
+        self.retired_after: dict[str, int] = {}
         self.entries: list[Entry] = []        # stands in for the DB table
         self.checkpoints: list[tuple[int, str]] = []   # stands in for write-once storage
 
     def rotate_key(self, key_id: str, key: bytes) -> None:
+        # Reusing an id would overwrite the old key and break every old entry.
+        if key_id in self.keys:
+            raise ValueError("key id already exists; use a new id")
+        self.retired_after[self.active_key_id] = len(self.entries)
         self.keys[key_id] = key
         self.active_key_id = key_id
 
@@ -100,6 +107,9 @@ class AuditLog:
             key = self.keys.get(e.key_id)
             if key is None:
                 return VerifyResult(False, e.seq, f"unknown key id {e.key_id!r}")
+            last_allowed = self.retired_after.get(e.key_id)
+            if last_allowed is not None and e.seq > last_allowed:
+                return VerifyResult(False, e.seq, "entry signed with a retired key")
             want = _mac(key, _canonical(e.seq, e.ts, e.actor, e.action, e.target, e.details,
                                          e.key_id, e.prev_mac))
             if not hmac.compare_digest(want, e.mac):
