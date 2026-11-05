@@ -39,6 +39,7 @@ Every problem folder has the same structure:
 | 022 | [Any website a customer visited could read their account details and API keys](problems/022-cors-origin-reflection-credentials) |
 | 023 | [Customer import returned the server's config file contents in the "name" column of the preview](problems/023-xxe-doctype-xml-upload) |
 | 024 | [Users received genuine password-reset emails whose link pointed to a stranger's website](problems/024-host-header-password-reset-poisoning) |
+| 025 | [The security team's login log showed an "admin login succeeded" that never happened](problems/025-log-injection-forged-entries) |
 <!-- INDEX:END -->
 
 ## Run the tests
