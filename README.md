@@ -40,6 +40,7 @@ Every problem folder has the same structure:
 | 023 | [Customer import returned the server's config file contents in the "name" column of the preview](problems/023-xxe-doctype-xml-upload) |
 | 024 | [Users received genuine password-reset emails whose link pointed to a stranger's website](problems/024-host-header-password-reset-poisoning) |
 | 025 | [The security team's login log showed an "admin login succeeded" that never happened](problems/025-log-injection-forged-entries) |
+| 026 | [Invoice download links that "expire after one hour" still worked months later after changing one number in the URL](problems/026-signed-url-unsigned-expiry) |
 <!-- INDEX:END -->
 
 ## Run the tests
