@@ -50,6 +50,7 @@ Every problem folder has the same structure:
 | 033 | [A spam crew knew exactly which leaked email addresses were real customers before sending them fake "your order is on hold" emails](problems/033-account-enumeration-reset-signup) |
 | 034 | [Moderators who clicked a seller's profile picture to enlarge it had their account email changed to the attacker's](problems/034-svg-avatar-upload-stored-xss) |
 | 035 | [Customers' login passwords and bearer tokens were readable by anyone with access to the log search tool](problems/035-secrets-leaked-into-request-logs) |
+| 036 | [An attacker gave himself admin on the support platform with a token whose key id pointed at the site's stylesheet](problems/036-jwt-kid-header-key-injection) |
 <!-- INDEX:END -->
 
 ## Run the tests
