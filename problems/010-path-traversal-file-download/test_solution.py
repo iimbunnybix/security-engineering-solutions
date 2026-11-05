@@ -101,6 +101,17 @@ class SafeDownload(Base):
         os.symlink(self.lay.exports / "acme" / "2026" / "orders-10.csv", link)
         self.assertEqual(download_safe(self.lay.exports, "acme", "latest.csv"), b"acme orders\n")
 
+    def test_hard_link_to_config_secret_is_rejected(self):
+        # A hard link has no target to resolve, so the containment check passes.
+        link = self.lay.exports / "acme" / "report.csv"
+        os.link(self.lay.app / "config" / "app.env", link)
+        self.assertEqual(download_vulnerable(str(self.lay.exports / "acme"), "report.csv").decode(),
+                         self.lay.secret)
+        with self.assertRaisesRegex(Forbidden, "hard link"):
+            download_safe(self.lay.exports, "acme", "report.csv")
+        self.assertEqual(handle_download(self.lay.exports, "acme", "report.csv"),
+                         (404, b"not found"))
+
     def test_directory_and_missing_rejected(self):
         for name in ("2026", "nope.csv"):
             self.assertEqual(handle_download(self.lay.exports, "acme", name)[0], 404)
