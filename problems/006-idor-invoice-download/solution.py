@@ -81,29 +81,39 @@ def can_read(p: Principal, inv: Invoice) -> bool:
     return False
 
 
+def principal_key(p: Principal) -> tuple[str, str]:
+    """Globally unique identity of a caller.
+
+    User ids are often only unique inside a tenant, so keying by ``user_id``
+    alone would let one tenant's user lock out a same-named user elsewhere.
+    """
+    return (p.tenant_id, p.user_id)
+
+
 class AccessAudit:
     """Records denials and flags callers who look like they are enumerating."""
 
     def __init__(self, threshold: int = 20, window_s: float = 60.0,
                  clock: Callable[[], float] = time.monotonic):
         self.threshold, self.window_s, self.clock = threshold, window_s, clock
-        self._denials: dict[str, deque] = defaultdict(deque)
+        self._denials: dict[tuple[str, str], deque] = defaultdict(deque)
         self.log: list[dict] = []
-        self.flagged: set[str] = set()
+        self.flagged: set[tuple[str, str]] = set()
 
     def denied(self, p: Principal, invoice_id: int) -> None:
         now = self.clock()
         self.log.append({"t": now, "user": p.user_id, "tenant": p.tenant_id,
                          "action": "invoice.read", "object": invoice_id, "result": "denied"})
-        q = self._denials[p.user_id]
+        # Count per (tenant, user), not per user_id: see principal_key.
+        q = self._denials[principal_key(p)]
         q.append(now)
         while q and q[0] <= now - self.window_s:
             q.popleft()
         if len(q) >= self.threshold:
-            self.flagged.add(p.user_id)
+            self.flagged.add(principal_key(p))
 
     def is_blocked(self, p: Principal) -> bool:
-        return p.user_id in self.flagged
+        return principal_key(p) in self.flagged
 
 
 def get_invoice_vulnerable(repo: InvoiceRepository, p: Principal | None,

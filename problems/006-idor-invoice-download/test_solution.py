@@ -98,6 +98,14 @@ class ObjectLevelAuthz(unittest.TestCase):
         self.get(ALICE, BOB_INV)
         self.assertFalse(self.audit.is_blocked(ALICE))
 
+    def test_block_in_one_tenant_does_not_lock_out_same_named_user_elsewhere(self):
+        same_name_attacker = Principal("alice", "globex", "member")
+        for invoice_id in range(10_001, 10_021):
+            self.get(same_name_attacker, invoice_id)
+        self.assertEqual(self.get(same_name_attacker, MALLORY_INV).status, 429)
+        self.assertFalse(self.audit.is_blocked(ALICE))
+        self.assertEqual(self.get(ALICE, ALICE_INV).status, 200)
+
 
 if __name__ == "__main__":
     unittest.main()

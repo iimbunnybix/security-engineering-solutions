@@ -29,7 +29,10 @@ different objects.
 - **Uniform 404.** "Belongs to someone else" and "does not exist" return
   identical responses, so the API does not confirm which ids are real.
 - **Audit + enumeration detection.** Every denial is logged with user, tenant
-  and object id. 20 denials within 60 s flag the account and return 429. In
+  and object id. 20 denials within 60 s flag the account and return 429.
+  Counters and flags are keyed by `(tenant_id, user_id)`, because user ids
+  are often only unique inside a tenant: keying by `user_id` alone let a
+  `globex` user named `alice` lock out `acme`'s `alice`. In
   the test, a 100-id scan gets zero invoices, 20 × 404 and then 80 × 429,
   while a user making 10 mistakes spread over time is never blocked.
 
