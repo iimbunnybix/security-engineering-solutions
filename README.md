@@ -42,6 +42,7 @@ Every problem folder has the same structure:
 | 025 | [The security team's login log showed an "admin login succeeded" that never happened](problems/025-log-injection-forged-entries) |
 | 026 | [Invoice download links that "expire after one hour" still worked months later after changing one number in the URL](problems/026-signed-url-unsigned-expiry) |
 | 027 | [A read-only reporting token was accepted by the payments admin API and used to issue refunds](problems/027-jwt-audience-confusion-cross-service) |
+| 028 | [Accounts with SMS two-factor login were taken over by scripts that guessed the 6-digit code](problems/028-mfa-code-brute-force-attempt-limit) |
 <!-- INDEX:END -->
 
 ## Run the tests
