@@ -73,7 +73,9 @@ class SearchParams:
         if direction not in DIRECTIONS:
             raise BadRequest("dir must be asc or desc")
         raw_limit = query.get("limit", "20")
-        if not raw_limit.isdigit():
+        # isdigit() alone also accepts Unicode digits ("\u00b2", "\u0661"), which int()
+        # either rejects with ValueError (a 500) or silently parses; allow ASCII only.
+        if not (raw_limit.isascii() and raw_limit.isdigit()):
             raise BadRequest("limit must be a positive integer")
         limit = int(raw_limit)
         if not 1 <= limit <= MAX_LIMIT:

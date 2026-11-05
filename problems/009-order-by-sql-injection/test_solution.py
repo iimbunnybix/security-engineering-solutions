@@ -64,6 +64,12 @@ class AllowlistFix(unittest.TestCase):
             status, _ = handle_search(self.conn, {"category": "tools", "limit": limit})
             self.assertEqual(status, 400, limit)
 
+    def test_non_ascii_digit_limits_are_rejected_with_400(self):
+        for limit in ("\u00b2", "\u00b9\u2070", "\u0661\u0660"):   # superscripts, Arabic-Indic "10"
+            status, body = handle_search(self.conn, {"category": "tools", "limit": limit})
+            self.assertEqual(status, 400, ascii(limit))
+            self.assertIn("error", body)
+
     def test_category_value_is_bound(self):
         status, body = handle_search(self.conn, {"category": "tools' OR '1'='1"})
         self.assertEqual((status, body), (200, []))

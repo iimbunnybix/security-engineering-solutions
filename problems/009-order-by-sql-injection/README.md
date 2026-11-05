@@ -38,7 +38,8 @@ again through the `dir` parameter alone (`dir=, CASE … END`).
   key; it is never copied into the query.
 - **Direction is an enum** (`asc`/`desc` → `ASC`/`DESC`), with case and
   whitespace normalised.
-- **Bounded `limit`**: digits only, 1–100.
+- **Bounded `limit`**: ASCII digits only (`str.isdigit()` alone also accepts
+  `"²"` or Arabic-Indic digits, and `int("²")` raises a 500), 1–100.
 - **Everything else stays bound** (`category`, `limit`), and `id` is added as
   a tie-breaker so ordering is stable.
 - Invalid input returns **400** with a generic message; it is never "fixed
