@@ -32,6 +32,7 @@ Every problem folder has the same structure:
 | 015 | [Pentesters rebuilt a customer's live API key from response times alone](problems/015-timing-attack-api-key-compare) |
 | 016 | [The same ₹50,000 partner payout went out twice, a week after it was approved](problems/016-webhook-signature-replay) |
 | 017 | [Signup API stopped responding when a bot submitted a few odd-looking email addresses](problems/017-redos-email-validation) |
+| 018 | [Customers reported "new device login" emails they never made, and dozens of accounts were drained of reward points](problems/018-credential-stuffing-login-throttle) |
 <!-- INDEX:END -->
 
 ## Run the tests
