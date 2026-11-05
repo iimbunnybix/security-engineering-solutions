@@ -50,6 +50,10 @@ class UserStore:
     def __init__(self, iterations: int = DEFAULT_ITERATIONS):
         self.iterations = iterations
         self.hashes: dict[str, str] = {}
+        # Built once so the unknown-user path runs PBKDF2 exactly once per login,
+        # the same as a wrong password for a real user (building it per login
+        # would double the work and leak "user does not exist" via timing).
+        self._dummy_hash = hash_password("dummy", iterations)
 
     def wrap_all_legacy(self) -> int:
         n = 0
@@ -63,7 +67,7 @@ class UserStore:
         stored = self.hashes.get(user)
         if stored is None:
             # do equivalent work so "unknown user" is not faster than "wrong password"
-            verify(password, hash_password("dummy", self.iterations))
+            verify(password, self._dummy_hash)
             return False
         if not verify(password, stored):
             return False

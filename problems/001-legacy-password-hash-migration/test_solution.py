@@ -1,5 +1,8 @@
 import hashlib
 import unittest
+from unittest import mock
+
+import solution
 
 from solution import UserStore, hash_password, needs_rehash, verify
 
@@ -50,6 +53,23 @@ class MigrationTests(unittest.TestCase):
     def test_unknown_user_and_garbage_hash(self):
         self.assertFalse(self.store.login("nobody", "x"))
         self.assertFalse(verify("x", "not-a-hash"))
+
+
+class FixUnknownUserTiming(unittest.TestCase):
+    """Issue #1: unknown users must cost the same PBKDF2 work as wrong passwords."""
+
+    def count_pbkdf2_calls_during_login(self, store: UserStore, user: str) -> int:
+        with mock.patch.object(solution, "_pbkdf2", wraps=solution._pbkdf2) as counter:
+            store.login(user, "wrong-password")
+        return counter.call_count
+
+    def test_unknown_user_does_same_hashing_work_as_wrong_password(self):
+        store = UserStore(iterations=FAST)
+        store.hashes = {"asha": hash_password("monsoon2024", FAST)}
+        known_calls = self.count_pbkdf2_calls_during_login(store, "asha")
+        unknown_calls = self.count_pbkdf2_calls_during_login(store, "nobody")
+        self.assertEqual(known_calls, 1)
+        self.assertEqual(unknown_calls, known_calls)
 
 
 if __name__ == "__main__":
