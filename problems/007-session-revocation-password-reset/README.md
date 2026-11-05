@@ -31,7 +31,9 @@ authenticating after a reset.
 4. **Hardening.** Tokens are 32 random bytes; only their SHA-256 is stored, so
    a leaked session table cannot be replayed as cookies. Revoked or expired
    sessions are deleted when next seen. Failed password changes (wrong current
-   password, too short) revoke nothing. Registering a username that already
+   password, too short) revoke nothing. The 12-character minimum is enforced
+   by one helper used by both `change_password` and `reset_password`, so the
+   "forgot password" path cannot bypass it. Registering a username that already
    exists is refused, because re-creating the user would restart its epoch
    at 0 and revive sessions that were revoked at epoch 0.
 

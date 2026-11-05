@@ -22,6 +22,8 @@ import hashlib
 import secrets
 from dataclasses import dataclass, field
 
+MIN_PASSWORD_LENGTH = 12
+
 
 class FakeClock:
     def __init__(self, t: float = 0.0):
@@ -59,6 +61,12 @@ def _hash_password(pw: str, salt: bytes) -> str:
 def _check_password(pw: str, stored: str) -> bool:
     salt_hex, _ = stored.split(":", 1)
     return secrets.compare_digest(_hash_password(pw, bytes.fromhex(salt_hex)), stored)
+
+
+def _validate_new_password(new: str) -> None:
+    """One password policy for every path that sets a password."""
+    if len(new) < MIN_PASSWORD_LENGTH:
+        raise ValueError(f"password must be at least {MIN_PASSWORD_LENGTH} characters")
 
 
 @dataclass
@@ -122,8 +130,7 @@ class AuthService:
         u = self.users[user]
         if not _check_password(old, u.password_hash):
             raise PermissionError("current password is wrong")
-        if len(new) < 12:
-            raise ValueError("password must be at least 12 characters")
+        _validate_new_password(new)
         u.password_hash = _hash_password(new, secrets.token_bytes(16))
         if not self.revoke_on_password_change:
             return token
@@ -132,6 +139,9 @@ class AuthService:
 
     def reset_password(self, user: str, new: str) -> None:
         """Called after the emailed reset link is verified. Signs out everywhere."""
+        # Same policy as change_password, checked before anything changes, so
+        # "forgot password" is not a way around the length rule.
+        _validate_new_password(new)
         u = self.users[user]
         u.password_hash = _hash_password(new, secrets.token_bytes(16))
         if self.revoke_on_password_change:
