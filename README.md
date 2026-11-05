@@ -27,6 +27,7 @@ Every problem folder has the same structure:
 | 010 | [A customer downloaded the server's database password through the "download your export" link](problems/010-path-traversal-file-download) |
 | 011 | [Customers logged in through a link in a phishing email and were sent to a fake "session expired" page that stole their passwords](problems/011-open-redirect-after-login) |
 | 012 | [Attackers reset other users' passwords without ever seeing the reset email](problems/012-predictable-password-reset-tokens) |
+| 013 | [A free-tier user made himself an organisation admin by adding one field to the "edit profile" request](problems/013-mass-assignment-role-escalation) |
 <!-- INDEX:END -->
 
 ## Run the tests
