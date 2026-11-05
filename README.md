@@ -51,6 +51,7 @@ Every problem folder has the same structure:
 | 034 | [Moderators who clicked a seller's profile picture to enlarge it had their account email changed to the attacker's](problems/034-svg-avatar-upload-stored-xss) |
 | 035 | [Customers' login passwords and bearer tokens were readable by anyone with access to the log search tool](problems/035-secrets-leaked-into-request-logs) |
 | 036 | [An attacker gave himself admin on the support platform with a token whose key id pointed at the site's stylesheet](problems/036-jwt-kid-header-key-injection) |
+| 037 | [A tenant's "order shipped" email printed the platform's webhook signing key instead of a tracking number](problems/037-format-string-template-secret-leak) |
 <!-- INDEX:END -->
 
 ## Run the tests
