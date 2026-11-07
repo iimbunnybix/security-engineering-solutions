@@ -54,6 +54,7 @@ Every problem folder has the same structure:
 | 037 | [A tenant's "order shipped" email printed the platform's webhook signing key instead of a tracking number](problems/037-format-string-template-secret-leak) |
 | 038 | [A stranger joined a customer's workspace as admin using a "viewer" invite link the app signed for him](problems/038-ambiguous-signed-params-role-forgery) |
 | 039 | [Shoppers became store admins by editing four bytes of an "encrypted" session cookie](problems/039-unauthenticated-encrypted-cookie-bit-flip) |
+| 040 | [An outsider showed up in a company's private workspace after changing his profile email to a company address](problems/040-email-change-keeps-verified-flag) |
 <!-- INDEX:END -->
 
 ## Run the tests
