@@ -53,6 +53,7 @@ Every problem folder has the same structure:
 | 036 | [An attacker gave himself admin on the support platform with a token whose key id pointed at the site's stylesheet](problems/036-jwt-kid-header-key-injection) |
 | 037 | [A tenant's "order shipped" email printed the platform's webhook signing key instead of a tracking number](problems/037-format-string-template-secret-leak) |
 | 038 | [A stranger joined a customer's workspace as admin using a "viewer" invite link the app signed for him](problems/038-ambiguous-signed-params-role-forgery) |
+| 039 | [Shoppers became store admins by editing four bytes of an "encrypted" session cookie](problems/039-unauthenticated-encrypted-cookie-bit-flip) |
 <!-- INDEX:END -->
 
 ## Run the tests
