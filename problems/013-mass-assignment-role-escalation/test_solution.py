@@ -68,7 +68,29 @@ class ProfileUpdate(unittest.TestCase):
         log = []
         data = PROFILE_UPDATE.parse({"bio": "ok", "role": "admin"}, strict=False, log=log)
         self.assertEqual(data, {"bio": "ok"})
-        self.assertEqual(log, ["profile_update: dropped unknown field 'role'"])
+        self.assertEqual(log, ["profile_update: dropped 1 unknown field(s): 'role'"])
+
+    def test_newline_in_unknown_key_cannot_forge_a_log_line(self):
+        log = []
+        forged_key = "x'\n2026-11-05 admin_user_update: role changed to admin\n"
+        PROFILE_UPDATE.parse({"bio": "ok", forged_key: 1}, strict=False, log=log)
+        self.assertEqual(len(log), 1)
+        self.assertNotIn("\n", log[0])
+
+    def test_many_unknown_keys_produce_one_bounded_log_entry(self):
+        log = []
+        body = {f"k{index}": 1 for index in range(50_000)}
+        PROFILE_UPDATE.parse(body, strict=False, log=log)
+        self.assertEqual(len(log), 1)
+        self.assertIn("dropped 50000 unknown field(s)", log[0])
+        self.assertIn("'k19'", log[0])
+        self.assertNotIn("'k20'", log[0])
+        self.assertLess(len(log[0]), 2_000)
+
+    def test_very_long_unknown_key_is_truncated_in_the_log(self):
+        log = []
+        PROFILE_UPDATE.parse({"a" * 10_000: 1}, strict=False, log=log)
+        self.assertLess(len(log[0]), 200)
 
 
 class AdminUpdate(unittest.TestCase):

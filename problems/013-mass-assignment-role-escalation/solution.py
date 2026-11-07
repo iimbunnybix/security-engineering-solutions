@@ -22,6 +22,28 @@ from dataclasses import dataclass, field, fields
 from typing import Any, Callable
 
 
+# Unknown field names come from the attacker, so the lenient-mode log entry
+# shows at most this many of them, each cut to this many characters.
+MAX_LOGGED_UNKNOWN_FIELDS = 20
+MAX_LOGGED_FIELD_NAME_LENGTH = 40
+
+
+def describe_dropped_fields(schema_name: str, dropped: list[str]) -> str:
+    """Build ONE bounded, single-line log entry for the dropped field names.
+
+    ``repr()`` escapes newlines and control characters, so a key cannot
+    forge a second log line; the caps stop a body with 50,000 junk keys
+    from flooding the log.
+    """
+    shown = []
+    for name in dropped[:MAX_LOGGED_UNKNOWN_FIELDS]:
+        shown.append(repr(str(name)[:MAX_LOGGED_FIELD_NAME_LENGTH]))
+    more = len(dropped) - len(shown)
+    suffix = f", ... (+{more} more)" if more > 0 else ""
+    return (f"{schema_name}: dropped {len(dropped)} unknown field(s): "
+            f"{', '.join(shown)}{suffix}")
+
+
 class ValidationError(ValueError):
     def __init__(self, errors: list[str]):
         super().__init__("; ".join(errors))
@@ -50,14 +72,14 @@ class Schema:
         """Validate ``body`` and return only declared fields."""
         if not isinstance(body, dict):
             raise ValidationError(["body must be a JSON object"])
-        errors, out = [], {}
+        errors, out, dropped = [], {}, []
         for key, value in body.items():
             spec = self.spec.get(key)
             if spec is None:
                 if strict:
                     errors.append(f"unknown field '{key}'")
-                elif log is not None:
-                    log.append(f"{self.name}: dropped unknown field '{key}'")
+                else:
+                    dropped.append(key)
                 continue
             err = self._check(key, value, spec)
             if err:
@@ -66,6 +88,8 @@ class Schema:
                 out[key] = value
         if errors:
             raise ValidationError(errors)
+        if dropped and log is not None:
+            log.append(describe_dropped_fields(self.name, dropped))
         return out
 
     @staticmethod

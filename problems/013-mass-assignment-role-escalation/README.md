@@ -45,6 +45,9 @@ The response had the same problem in reverse: it serialised the whole model.
 - **Audit entries** for every field that actually changed.
 - `strict=False` drops and logs unknown fields instead of rejecting, for
   rolling out the schema without breaking clients that send extra fields.
+  It writes one log entry per request, with at most 20 field names, each
+  `repr()`-escaped and cut to 40 characters, so attacker-chosen keys cannot
+  forge log lines or flood the log.
 
 The tests replay the attack against the old handler (role, verification,
 credit and org all change) and against the fixed one (400, nothing changes,
