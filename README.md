@@ -55,6 +55,7 @@ Every problem folder has the same structure:
 | 038 | [A stranger joined a customer's workspace as admin using a "viewer" invite link the app signed for him](problems/038-ambiguous-signed-params-role-forgery) |
 | 039 | [Shoppers became store admins by editing four bytes of an "encrypted" session cookie](problems/039-unauthenticated-encrypted-cookie-bit-flip) |
 | 040 | [An outsider showed up in a company's private workspace after changing his profile email to a company address](problems/040-email-change-keeps-verified-flag) |
+| 041 | [Every customer's API key worked for an attacker who got hold of an old analytics replica backup](problems/041-plaintext-api-keys-leaked-replica) |
 <!-- INDEX:END -->
 
 ## Run the tests
