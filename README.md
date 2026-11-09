@@ -58,6 +58,7 @@ Every problem folder has the same structure:
 | 041 | [Every customer's API key worked for an attacker who got hold of an old analytics replica backup](problems/041-plaintext-api-keys-leaked-replica) |
 | 042 | [A customer who forgot to log out at a cyber café found her password, email and 2FA changed the next morning](problems/042-stolen-session-password-change-step-up) |
 | 043 | [A CSV upload named "orders.csv; curl … | sh" ran the attacker's script on the import worker](problems/043-shell-command-injection-upload-filename) |
+| 044 | [A refresh token copied from a lost phone kept reading a customer's account for weeks after she got a new one](problems/044-stolen-refresh-token-reuse-detection) |
 <!-- INDEX:END -->
 
 ## Run the tests
