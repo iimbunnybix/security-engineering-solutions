@@ -57,6 +57,7 @@ Every problem folder has the same structure:
 | 040 | [An outsider showed up in a company's private workspace after changing his profile email to a company address](problems/040-email-change-keeps-verified-flag) |
 | 041 | [Every customer's API key worked for an attacker who got hold of an old analytics replica backup](problems/041-plaintext-api-keys-leaked-replica) |
 | 042 | [A customer who forgot to log out at a cyber café found her password, email and 2FA changed the next morning](problems/042-stolen-session-password-change-step-up) |
+| 043 | [A CSV upload named "orders.csv; curl … | sh" ran the attacker's script on the import worker](problems/043-shell-command-injection-upload-filename) |
 <!-- INDEX:END -->
 
 ## Run the tests
