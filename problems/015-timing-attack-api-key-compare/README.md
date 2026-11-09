@@ -44,6 +44,12 @@ guesses both examine every character).
    fails.
 4. **Unknown key ids compare against a dummy digest,** so they do the same
    single comparison as a wrong secret for a real key id.
+5. **Duplicate key ids are refused, not overwritten.** The key id is a random
+   32-bit value, so by the birthday bound the chance that two keys share one
+   is about 1.2% at 10,000 keys and 39% at 65,536 keys. `add_key` raises
+   `DuplicateKeyIdError` instead of replacing the existing customer's record
+   (which would silently break their key), and `create_key` generates a key
+   and retries with a new key id on collision, up to `MAX_CREATE_ATTEMPTS`.
 
 A fast hash (SHA-256) is fine here because API keys are 128-bit random values;
 unlike passwords they cannot be guessed from a dictionary, so a slow KDF would
@@ -58,6 +64,9 @@ only add latency to every request.
   timing only.
 - Rate limiting and alerting on many failed attempts per key id is still
   needed: constant-time compare stops this attack, not online guessing.
+- A longer key id (12+ hex characters) would make collisions rarer; in a real
+  database a unique constraint on the key id column does the same job as the
+  duplicate check here.
 - Alternatives: HMAC the secret with a server-side pepper (so a database leak
   alone cannot even verify guesses), or signed tokens instead of bearer keys.
 

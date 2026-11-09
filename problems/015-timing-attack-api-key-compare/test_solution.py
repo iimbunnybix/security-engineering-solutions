@@ -1,7 +1,8 @@
 import random
 import unittest
 
-from solution import (HEX_ALPHABET, SECRET_HEX_CHARS, HashedKeyStore, LeakyComparator,
+from solution import (HEX_ALPHABET, MAX_CREATE_ATTEMPTS, SECRET_HEX_CHARS,
+                      DuplicateKeyIdError, HashedKeyStore, LeakyComparator,
                       digest_secret, generate_api_key, naive_authenticate,
                       recover_secret_by_timing, split_api_key)
 
@@ -130,6 +131,68 @@ class FixHashedConstantTimeKeys(unittest.TestCase):
         first, second = generate_api_key(), generate_api_key()
         self.assertNotEqual(first, second)
         self.assertIsNotNone(split_api_key(first))
+
+
+def key_with_same_key_id(api_key: str) -> str:
+    """A different key (different secret) that reuses api_key's key id."""
+    key_id, secret = split_api_key(api_key)
+    other_secret = ("1" if secret[0] != "1" else "2") + secret[1:]
+    return f"sk_{key_id}_{other_secret}"
+
+
+class RepeatingRandom(random.Random):
+    """Fake randomness that replays a fixed sequence of keys' characters.
+
+    Each call to generate_api_key consumes one scripted key, so a test can force
+    the first generated key id to collide with an existing one.
+    """
+
+    def __init__(self, scripted_keys: list[str]) -> None:
+        super().__init__(0)
+        characters = []
+        for scripted_key in scripted_keys:
+            key_id, secret = split_api_key(scripted_key)
+            characters.extend(key_id + secret)
+        self._characters = characters
+
+    def choice(self, sequence):  # noqa: D401 - mirrors random.Random.choice
+        return self._characters.pop(0)
+
+
+class FixDuplicateKeyIds(unittest.TestCase):
+    def setUp(self):
+        self.first_key = make_key()
+        self.store = HashedKeyStore()
+        self.store.add_key(self.first_key, "acme")
+
+    def test_adding_a_second_key_with_the_same_key_id_is_refused(self):
+        with self.assertRaises(DuplicateKeyIdError):
+            self.store.add_key(key_with_same_key_id(self.first_key), "globex")
+
+    def test_refused_duplicate_leaves_the_original_key_working(self):
+        colliding_key = key_with_same_key_id(self.first_key)
+        with self.assertRaises(DuplicateKeyIdError):
+            self.store.add_key(colliding_key, "globex")
+        self.assertEqual(self.store.authenticate(self.first_key), "acme")
+        self.assertIsNone(self.store.authenticate(colliding_key))
+
+    def test_create_key_retries_past_a_key_id_collision(self):
+        fresh_key = generate_api_key(random.Random(SEED + 1))
+        rng = RepeatingRandom([key_with_same_key_id(self.first_key), fresh_key])
+        created = self.store.create_key("globex", rng)
+        self.assertEqual(created, fresh_key)
+        self.assertEqual(self.store.authenticate(created), "globex")
+        self.assertEqual(self.store.authenticate(self.first_key), "acme")
+
+    def test_create_key_gives_up_after_too_many_collisions(self):
+        colliding = [key_with_same_key_id(self.first_key)] * MAX_CREATE_ATTEMPTS
+        with self.assertRaises(DuplicateKeyIdError):
+            self.store.create_key("globex", RepeatingRandom(colliding))
+        self.assertEqual(self.store.authenticate(self.first_key), "acme")
+
+    def test_create_key_without_rng_returns_a_working_key(self):
+        created = self.store.create_key("globex")
+        self.assertEqual(self.store.authenticate(created), "globex")
 
 
 if __name__ == "__main__":

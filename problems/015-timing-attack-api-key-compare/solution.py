@@ -24,6 +24,9 @@ KEY_PREFIX = "sk"
 KEY_ID_HEX_CHARS = 8
 SECRET_HEX_CHARS = 32
 HEX_ALPHABET = "0123456789abcdef"
+# How many fresh key ids create_key tries before giving up. A collision on a
+# 32-bit key id is rare, so several in a row means something is broken.
+MAX_CREATE_ATTEMPTS = 5
 
 # A comparator takes two values and says whether they are equal.
 Comparator = Callable[[object, object], bool]
@@ -93,6 +96,10 @@ def digest_secret(secret: str) -> bytes:
     return hashlib.sha256(secret.encode()).digest()
 
 
+class DuplicateKeyIdError(ValueError):
+    """Raised instead of silently replacing another customer's key."""
+
+
 @dataclass(frozen=True)
 class KeyRecord:
     customer: str
@@ -114,7 +121,26 @@ class HashedKeyStore:
         if parsed is None:
             raise ValueError("malformed API key")
         key_id, secret = parsed
+        # Key ids are random 32-bit values, so two keys can share one. Writing
+        # over the old record would silently break another customer's key.
+        if key_id in self._records:
+            raise DuplicateKeyIdError(f"key id {key_id} is already in use")
         self._records[key_id] = KeyRecord(customer, digest_secret(secret))
+
+    def create_key(self, customer: str, rng: random.Random | None = None) -> str:
+        """Generate and register a new key, retrying when its key id is taken.
+
+        ``rng`` is only for tests; production uses the ``secrets`` module.
+        """
+        for _attempt in range(MAX_CREATE_ATTEMPTS):
+            api_key = generate_api_key(rng)
+            try:
+                self.add_key(api_key, customer)
+            except DuplicateKeyIdError:
+                continue
+            return api_key
+        raise DuplicateKeyIdError(
+            f"no free key id after {MAX_CREATE_ATTEMPTS} attempts")
 
     def stored_values(self) -> list[bytes]:
         """What a database dump would reveal: digests only."""
