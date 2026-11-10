@@ -59,6 +59,7 @@ Every problem folder has the same structure:
 | 042 | [A customer who forgot to log out at a cyber café found her password, email and 2FA changed the next morning](problems/042-stolen-session-password-change-step-up) |
 | 043 | [A CSV upload named "orders.csv; curl … | sh" ran the attacker's script on the import worker](problems/043-shell-command-injection-upload-filename) |
 | 044 | [A refresh token copied from a lost phone kept reading a customer's account for weeks after she got a new one](problems/044-stolen-refresh-token-reuse-detection) |
+| 045 | [A customer's uploaded theme ZIP overwrote the site builder's own config file](problems/045-zip-slip-theme-upload-overwrites-files) |
 <!-- INDEX:END -->
 
 ## Run the tests
