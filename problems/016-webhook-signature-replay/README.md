@@ -35,7 +35,10 @@ the same scheme Stripe and others publish:
 3. **Replay cache keyed by event id, kept until `timestamp + tolerance`.**
    That is exactly as long as the timestamp check could still pass. After
    that the freshness check alone rejects the replay, so the cache is small
-   and complete: it never needs a retention trade-off.
+   and complete: it never needs a retention trade-off. When a re-signed
+   retry of an already-seen event arrives with a later timestamp, it is
+   rejected and the entry is extended to `retry timestamp + tolerance`, so
+   replaying the captured retry later is still caught.
 4. **Constant-time comparison** with `hmac.compare_digest`.
 5. **Secret rotation:** the receiver accepts a list of active secrets and the
    sender may include one `v1=` signature per secret. Roll out the new secret

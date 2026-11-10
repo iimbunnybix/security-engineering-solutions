@@ -155,13 +155,18 @@ class WebhookReceiver:
         return False
 
     def _remember_or_reject(self, event_id: str, timestamp: int) -> None:
-        """Reject an event id already accepted while its timestamp is fresh."""
+        """Reject an event id already seen while any of its deliveries is fresh."""
         now = self.clock()
         # Keep an entry while its timestamp could still pass the freshness
         # check (until timestamp + tolerance, inclusive). After that the
         # timestamp check alone rejects the replay, so the entry can go.
         for seen_id in [eid for eid, until in self.replay_cache.items() if until < now]:
             del self.replay_cache[seen_id]
+        fresh_until = timestamp + TOLERANCE_SECONDS
         if event_id in self.replay_cache:
+            # A provider retry is re-signed with a later timestamp, so it stays
+            # fresh longer than the first delivery. Extend the entry to cover
+            # it, or replaying the retry would succeed once the first expires.
+            self.replay_cache[event_id] = max(self.replay_cache[event_id], fresh_until)
             raise Rejected("replayed event")
-        self.replay_cache[event_id] = timestamp + TOLERANCE_SECONDS
+        self.replay_cache[event_id] = fresh_until

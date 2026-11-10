@@ -107,6 +107,17 @@ class FixTimestampedSignatures(unittest.TestCase):
         with self.assertRaisesRegex(Rejected, "tolerance"):
             self.receiver.receive(self.body, header)
 
+    def test_replayed_provider_retry_is_rejected_after_first_entry_expires(self):
+        self.receiver.receive(self.body, self.header_now())
+        self.clock.advance(200)
+        retry_header = self.header_now()
+        with self.assertRaisesRegex(Rejected, "replayed"):
+            self.receiver.receive(self.body, retry_header)
+        # The first delivery's entry has expired, but the retry is still fresh.
+        self.clock.advance(TOLERANCE_SECONDS - 200 + 1)
+        with self.assertRaisesRegex(Rejected, "replayed"):
+            self.receiver.receive(self.body, retry_header)
+
     def test_changing_the_timestamp_breaks_the_signature(self):
         header = self.header_now()
         signature = parse_signature_header(header)[1][0]
