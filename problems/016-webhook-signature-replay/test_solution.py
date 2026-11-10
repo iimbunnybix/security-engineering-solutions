@@ -139,6 +139,15 @@ class FixTimestampedSignatures(unittest.TestCase):
             with self.assertRaisesRegex(Rejected, "malformed"):
                 self.receiver.receive(self.body, header)
 
+    def test_unicode_digit_timestamp_is_rejected_not_crashing(self):
+        with self.assertRaisesRegex(Rejected, "malformed"):
+            self.receiver.receive(self.body, "t=\u00b2,v1=ab")
+
+    def test_non_ascii_signature_is_rejected_not_crashing(self):
+        header = f"t={int(self.clock())},v1=\u00e9"
+        with self.assertRaisesRegex(Rejected, "bad signature"):
+            self.receiver.receive(self.body, header)
+
     def test_body_without_event_id_is_rejected(self):
         body = json.dumps({"type": "payout.approved"})
         header = sign_delivery([self.secret], body, int(self.clock()))

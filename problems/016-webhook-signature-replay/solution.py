@@ -102,7 +102,9 @@ def parse_signature_header(header: str) -> tuple[int, list[str]] | None:
         name, separator, value = part.partition("=")
         if not separator:
             return None
-        if name == "t" and value.isdigit():
+        # isdigit() alone accepts characters like "²" that int() rejects;
+        # only plain ASCII digits are a valid timestamp.
+        if name == "t" and value.isascii() and value.isdigit():
             timestamp = int(value)
         elif name == "v1":
             signatures.append(value)
@@ -150,7 +152,9 @@ class WebhookReceiver:
         for secret in self.active_secrets:
             expected = hmac_hex(secret, signed_payload)
             for presented in signatures:
-                if hmac.compare_digest(expected, presented):
+                # Compare bytes: compare_digest raises TypeError on str values
+                # with non-ASCII characters, which an attacker controls.
+                if hmac.compare_digest(expected.encode(), presented.encode()):
                     return True
         return False
 
