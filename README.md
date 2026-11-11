@@ -61,6 +61,7 @@ Every problem folder has the same structure:
 | 044 | [A refresh token copied from a lost phone kept reading a customer's account for weeks after she got a new one](problems/044-stolen-refresh-token-reuse-detection) |
 | 045 | [A customer's uploaded theme ZIP overwrote the site builder's own config file](problems/045-zip-slip-theme-upload-overwrites-files) |
 | 046 | [Attackers logged in with 2FA codes their victims had just typed](problems/046-totp-code-replay-within-time-window) |
+| 047 | [Login throttle never fired for an attacker on IPv6: 1,000 password guesses from one home line went straight through](problems/047-ipv6-address-rotation-bypasses-login-throttle) |
 <!-- INDEX:END -->
 
 ## Run the tests
