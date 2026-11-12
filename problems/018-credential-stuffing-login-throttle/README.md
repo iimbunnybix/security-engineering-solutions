@@ -33,7 +33,10 @@ and take over all 24 accounts.
    after that each key must wait 1 s, 2 s, 4 s, … capped at 15 minutes. The
    throttle is checked *before* the password, so a throttled attacker learns
    nothing from a correct guess.
-3. **Bounded and forgiving.** A success resets both counters, and failures more
+3. **Bounded and forgiving.** A success resets the account counter and removes
+   from the IP counter only the failures that account caused from that IP (its
+   owner's typos). Clearing the whole IP counter would let an attacker log in to
+   their own account between guesses and never be throttled. Failures more
    than an hour apart start a fresh count.
 4. **Trusted IPs skip the account throttle.** An IP that has logged in to the
    account before is only subject to its own IP counter, so an attacker

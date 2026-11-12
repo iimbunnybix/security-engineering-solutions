@@ -92,6 +92,13 @@ class FailureTracker:
     def reset(self, key: str) -> None:
         self.records.pop(key, None)
 
+    def forgive(self, key: str, failure_count: int) -> None:
+        """Remove `failure_count` failures from a key, never going below zero."""
+        record = self.records.get(key)
+        if record is None:
+            return
+        record.count = max(0, record.count - failure_count)
+
 
 class ThrottledLoginService:
     """Login with per-account and per-IP backoff, and trusted IPs per account."""
@@ -101,6 +108,9 @@ class ThrottledLoginService:
         self.account_failures = FailureTracker(clock)
         self.ip_failures = FailureTracker(clock)
         self.trusted_ips: dict[str, set[str]] = {}
+        # Failures each (account, IP) pair added to the IP counter since the
+        # account's last success, so a success forgives only its own typos.
+        self.failures_by_account_and_ip: dict[tuple[str, str], int] = {}
 
     def _wait_seconds(self, email: str, client_ip: str) -> float:
         """How long this request must wait, combining both throttles."""
@@ -120,9 +130,20 @@ class ThrottledLoginService:
             return LoginResult(LoginOutcome.THROTTLED, retry_after_seconds=wait)
         if self.passwords.get(email) == password:
             self.account_failures.reset(email)
-            self.ip_failures.reset(client_ip)
+            self._forgive_own_ip_failures(email, client_ip)
             self.trusted_ips.setdefault(email, set()).add(client_ip)
             return LoginResult(LoginOutcome.SUCCESS)
         self.account_failures.record_failure(email)
         self.ip_failures.record_failure(client_ip)
+        pair = (email, client_ip)
+        self.failures_by_account_and_ip[pair] = self.failures_by_account_and_ip.get(pair, 0) + 1
         return LoginResult(LoginOutcome.WRONG_PASSWORD)
+
+    def _forgive_own_ip_failures(self, email: str, client_ip: str) -> None:
+        """On success, drop only the IP failures this account caused from this IP.
+
+        Clearing the whole IP counter would let an attacker log in to their
+        own account between guesses on other accounts and never be throttled.
+        """
+        own_failures = self.failures_by_account_and_ip.pop((email, client_ip), 0)
+        self.ip_failures.forgive(client_ip, own_failures)

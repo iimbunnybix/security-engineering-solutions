@@ -101,6 +101,21 @@ class FixCredentialStuffing(unittest.TestCase):
         self.assertEqual(result.outcome, LoginOutcome.THROTTLED)
 
 
+class FixInterleavedOwnAccountLogins(unittest.TestCase):
+    def test_attacker_logging_into_own_account_is_still_throttled(self):
+        passwords, leaked_pairs = build_site_and_leak()
+        passwords["attacker@example.com"] = "attacker-own-pw"
+        clock = FakeClock()
+        service = ThrottledLoginService(passwords, clock)
+        throttled = 0
+        for index, (email, password) in enumerate(leaked_pairs):
+            if service.login(email, password, ATTACKER_IP).outcome == LoginOutcome.THROTTLED:
+                throttled += 1
+            if index % (FREE_FAILURES - 1) == FREE_FAILURES - 2:
+                service.login("attacker@example.com", "attacker-own-pw", ATTACKER_IP)
+        self.assertGreater(throttled, len(leaked_pairs) - 2 * FREE_FAILURES)
+
+
 class FixNoLockoutOfRealOwner(unittest.TestCase):
     def setUp(self):
         self.passwords, _ = build_site_and_leak()
@@ -133,6 +148,14 @@ class FixNoLockoutOfRealOwner(unittest.TestCase):
         for _ in range(FREE_FAILURES - 1):
             result = self.service.login(self.email, "typo", OWNER_IP)
         self.assertEqual(result.outcome, LoginOutcome.WRONG_PASSWORD)
+
+    def test_success_on_own_account_does_not_clear_ip_failures_on_others(self):
+        self.passwords["attacker@example.com"] = "attacker-own-pw"
+        for index in range(FREE_FAILURES):
+            self.service.login(f"user{index + 10}@example.com", "guess", ATTACKER_IP)
+            self.service.login("attacker@example.com", "attacker-own-pw", ATTACKER_IP)
+        result = self.service.login("user99@example.com", "guess", ATTACKER_IP)
+        self.assertEqual(result.outcome, LoginOutcome.THROTTLED)
 
     def test_old_failures_are_forgotten_after_an_hour(self):
         for _ in range(FREE_FAILURES):
