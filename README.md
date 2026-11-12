@@ -64,6 +64,7 @@ Every problem folder has the same structure:
 | 047 | [Login throttle never fired for an attacker on IPv6: 1,000 password guesses from one home line went straight through](problems/047-ipv6-address-rotation-bypasses-login-throttle) |
 | 048 | [A self-service signup request came back with role "admin" even though the gateway only allows role "user"](problems/048-duplicate-json-keys-authorization-bypass) |
 | 049 | [A pentester logged in to a procurement account with the password "x"](problems/049-bcrypt-72-byte-truncation-any-password-matches) |
+| 050 | [The billing service's config file was replaced by a CSV of invoices overnight](problems/050-predictable-temp-file-symlink-overwrite) |
 <!-- INDEX:END -->
 
 ## Run the tests
