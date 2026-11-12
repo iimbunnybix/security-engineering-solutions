@@ -63,6 +63,7 @@ Every problem folder has the same structure:
 | 046 | [Attackers logged in with 2FA codes their victims had just typed](problems/046-totp-code-replay-within-time-window) |
 | 047 | [Login throttle never fired for an attacker on IPv6: 1,000 password guesses from one home line went straight through](problems/047-ipv6-address-rotation-bypasses-login-throttle) |
 | 048 | [A self-service signup request came back with role "admin" even though the gateway only allows role "user"](problems/048-duplicate-json-keys-authorization-bypass) |
+| 049 | [A pentester logged in to a procurement account with the password "x"](problems/049-bcrypt-72-byte-truncation-any-password-matches) |
 <!-- INDEX:END -->
 
 ## Run the tests
