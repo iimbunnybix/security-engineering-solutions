@@ -66,6 +66,7 @@ Every problem folder has the same structure:
 | 049 | [A pentester logged in to a procurement account with the password "x"](problems/049-bcrypt-72-byte-truncation-any-password-matches) |
 | 050 | [The billing service's config file was replaced by a CSV of invoices overnight](problems/050-predictable-temp-file-symlink-overwrite) |
 | 051 | [A contractor demoted to "viewer" deleted customer data three hours later with admin rights](problems/051-role-claim-in-token-outlives-demotion) |
+| 052 | [Users who clicked "Sign in with our SSO" on a lookalike site had their accounts taken over](problems/052-regex-redirect-uri-allowlist-leaks-auth-codes) |
 <!-- INDEX:END -->
 
 ## Run the tests
