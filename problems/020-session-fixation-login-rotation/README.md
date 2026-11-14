@@ -38,7 +38,9 @@ something that changes with privilege:
   256-bit random ID and delete the old one. A pre-login ID is worthless after
   login (`test_pre_login_id_is_worthless_after_login`).
 - **Carry over only harmless data:** the cart survives login so the user
-  experience does not change; logout drops everything so the next person at
+  experience does not change, but only from an anonymous session or the same
+  user's session (a second user logging in on a shared computer starts
+  empty); logout drops everything so the next person at
   a shared computer gets an empty session.
 - `login` on an unknown ID raises instead of silently creating a session.
 

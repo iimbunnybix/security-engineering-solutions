@@ -77,9 +77,17 @@ class SessionManager:
         return self._issue(Session())
 
     def login(self, session_id: str, user_id: str) -> str:
-        """Move the session to a fresh ID at login and destroy the old one."""
+        """Move the session to a fresh ID at login and destroy the old one.
+
+        Session data (the cart) is carried over only from an anonymous
+        session or the same user's session; a different user logging in on
+        a shared computer must not inherit the previous user's data.
+        """
         old_session = self._require(session_id)
-        new_session = Session(user_id=user_id, level=LEVEL_USER, data=dict(old_session.data))
+        carried_data: dict = {}
+        if old_session.user_id is None or old_session.user_id == user_id:
+            carried_data = dict(old_session.data)
+        new_session = Session(user_id=user_id, level=LEVEL_USER, data=carried_data)
         return self._rotate(session_id, new_session)
 
     def step_up(self, session_id: str) -> str:

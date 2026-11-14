@@ -68,6 +68,19 @@ class FixRotation(unittest.TestCase):
         logged_in_id = self.manager.login(anonymous_id, VICTIM)
         self.assertEqual(self.manager.sessions[logged_in_id].data, {"cart": ["sku-1"]})
 
+    def test_switching_user_does_not_carry_previous_users_cart(self):
+        alice_id = self.manager.login(self.manager.start(None), "alice")
+        self.manager.sessions[alice_id].data["cart"] = ["private item"]
+        bob_id = self.manager.login(alice_id, "bob")
+        self.assertEqual(self.manager.current_user(bob_id), "bob")
+        self.assertEqual(self.manager.sessions[bob_id].data, {})
+
+    def test_same_user_logging_in_again_keeps_cart(self):
+        alice_id = self.manager.login(self.manager.start(None), "alice")
+        self.manager.sessions[alice_id].data["cart"] = ["sku-1"]
+        again_id = self.manager.login(alice_id, "alice")
+        self.assertEqual(self.manager.sessions[again_id].data, {"cart": ["sku-1"]})
+
     def test_step_up_rotates_and_raises_level(self):
         user_id = self.manager.login(self.manager.start(None), VICTIM)
         stepped_up_id = self.manager.step_up(user_id)
