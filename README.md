@@ -67,6 +67,7 @@ Every problem folder has the same structure:
 | 050 | [The billing service's config file was replaced by a CSV of invoices overnight](problems/050-predictable-temp-file-symlink-overwrite) |
 | 051 | [A contractor demoted to "viewer" deleted customer data three hours later with admin rights](problems/051-role-claim-in-token-outlives-demotion) |
 | 052 | [Users who clicked "Sign in with our SSO" on a lookalike site had their accounts taken over](problems/052-regex-redirect-uri-allowlist-leaks-auth-codes) |
+| 053 | [Shoppers checked out with negative totals and the difference was credited to their wallets](problems/053-client-trusted-cart-negative-quantity-credit) |
 <!-- INDEX:END -->
 
 ## Run the tests
