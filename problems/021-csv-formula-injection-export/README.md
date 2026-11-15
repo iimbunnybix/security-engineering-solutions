@@ -26,9 +26,12 @@ interpreter is the spreadsheet.
 - **Prefix formula-like text with `'`.** Any text cell starting with
   `= + - @`, tab or CR becomes `'=HYPERLINK(...)`. The spreadsheet shows it
   as text; the original value is still readable.
-- **Quote every field** (`csv.QUOTE_ALL`) and let the `csv` module escape
-  embedded quotes, so a value like `Bob",=1+1,"` stays one cell instead of
-  opening a new formula cell.
+- **Always write rows with the `csv` module, never by joining strings.**
+  The `csv` writer doubles embedded quotes in every quoting mode (the naive
+  export already does this), so a value like `Bob",=1+1,"` stays one cell.
+  Hand-built lines such as `",".join(...)` are what let it break out into a
+  new formula cell. `csv.QUOTE_ALL` is only a consistency choice (every cell
+  looks the same to importers), not the defence.
 - **Keep real numbers numeric.** `int`, `float` and `Decimal` values are
   written unchanged, so a balance of `-12.50` still sums in the sheet. Text
   that only *looks* numeric (`"-12.50"` typed into a free-text field) is

@@ -62,9 +62,10 @@ def neutralise_cell(value: CellValue) -> str:
 def safe_export_csv(columns: Sequence[str], rows: Iterable[Mapping[str, CellValue]]) -> str:
     """Write rows as CSV with every cell neutralised and every field quoted.
 
-    QUOTE_ALL stops a value such as ``a",=1+1`` from closing its own field
-    and starting a fresh, formula-bearing cell. Header names are neutralised
-    too, because column names can come from user-defined custom fields.
+    The csv writer escapes embedded quotes in any quoting mode, which is what
+    keeps a value such as ``a",=1+1`` inside its own field; QUOTE_ALL is only
+    used so every cell looks the same to importers. Header names are
+    neutralised too, because column names can come from user-defined fields.
     """
     buffer = io.StringIO()
     writer = csv.writer(buffer, quoting=csv.QUOTE_ALL, lineterminator="\n")

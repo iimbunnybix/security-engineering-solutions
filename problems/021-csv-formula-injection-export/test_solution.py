@@ -29,10 +29,20 @@ def parse(csv_text: str) -> list[list[str]]:
     return list(csv.reader(io.StringIO(csv_text)))
 
 
+def hand_built_csv_line(values: list[str]) -> str:
+    """The real-world mistake: wrap each value in quotes and join with commas."""
+    return ",".join('"' + value + '"' for value in values) + "\n"
+
+
 class ReproduceProblem(unittest.TestCase):
     def test_naive_export_writes_a_live_formula(self):
         exported = naive_export_csv(COLUMNS, customer_rows(exfiltration_payload()))
         self.assertIn(exfiltration_payload(), cells_a_spreadsheet_would_evaluate(exported))
+
+    def test_hand_built_csv_lets_embedded_quote_open_a_formula_cell(self):
+        sneaky_name = 'Bob",=1+1,"'
+        line = hand_built_csv_line(["2", sneaky_name, "Globex"])
+        self.assertIn("=1+1", cells_a_spreadsheet_would_evaluate(line))
 
     def test_naive_export_lets_dde_payload_through(self):
         dde_payload = "@SUM(1+1)*cmd|' /C calc'!A0"
@@ -54,12 +64,15 @@ class FixNeutralisesFormulas(unittest.TestCase):
         exported = safe_export_csv(COLUMNS, customer_rows(exfiltration_payload()))
         self.assertEqual(parse(exported)[2][1], "'" + exfiltration_payload())
 
-    def test_embedded_quote_cannot_start_a_new_formula_cell(self):
+    def test_csv_module_keeps_embedded_quote_in_one_cell_in_both_exports(self):
+        # Quote escaping by the csv module is the defence here, not QUOTE_ALL,
+        # so the naive export (QUOTE_MINIMAL) must behave the same way.
         sneaky_name = 'Bob",=1+1,"'
-        exported = safe_export_csv(COLUMNS, customer_rows(sneaky_name))
-        second_row = parse(exported)[2]
-        self.assertEqual(len(second_row), len(COLUMNS))
-        self.assertEqual(second_row[1], sneaky_name)
+        for export in (naive_export_csv, safe_export_csv):
+            with self.subTest(export=export.__name__):
+                second_row = parse(export(COLUMNS, customer_rows(sneaky_name)))[2]
+                self.assertEqual(len(second_row), len(COLUMNS))
+                self.assertEqual(second_row[1], sneaky_name)
 
     def test_formula_after_minus_sign_is_still_dangerous(self):
         self.assertEqual(cells_a_spreadsheet_would_evaluate("-1+cmd|x\n"), ["-1+cmd|x"])
