@@ -69,6 +69,7 @@ Every problem folder has the same structure:
 | 052 | [Users who clicked "Sign in with our SSO" on a lookalike site had their accounts taken over](problems/052-regex-redirect-uri-allowlist-leaks-auth-codes) |
 | 053 | [Shoppers checked out with negative totals and the difference was credited to their wallets](problems/053-client-trusted-cart-negative-quantity-credit) |
 | 054 | [Password reset links for real users were delivered to an attacker's lookalike email address](problems/054-unicode-case-mapped-reset-email-sent-to-attacker) |
+| 055 | [The shop's mail provider suspended sending after the "Contact us" form mailed spam to thousands of strangers](problems/055-crlf-in-contact-form-subject-injects-bcc-header) |
 <!-- INDEX:END -->
 
 ## Run the tests
