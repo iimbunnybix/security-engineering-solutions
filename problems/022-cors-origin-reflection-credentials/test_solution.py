@@ -92,6 +92,16 @@ class FixHandlesNormalisationAndCaching(unittest.TestCase):
     def test_unsupported_scheme_is_rejected(self):
         self.assertIsNone(parse_origin("ftp://app.example.com"))
 
+    def test_allowlisted_ipv6_origin_is_echoed_with_brackets(self):
+        ipv6_origin = "https://[::1]:8443"
+        headers = CorsPolicy([ipv6_origin]).cors_headers(ipv6_origin)
+        self.assertEqual(headers["Access-Control-Allow-Origin"], ipv6_origin)
+        self.assertTrue(browser_lets_page_read_response(ipv6_origin, headers))
+
+    def test_ipv6_origin_on_default_port_drops_the_port(self):
+        headers = CorsPolicy(["https://[::1]"]).cors_headers("https://[::1]:443")
+        self.assertEqual(headers["Access-Control-Allow-Origin"], "https://[::1]")
+
 
 if __name__ == "__main__":
     unittest.main()

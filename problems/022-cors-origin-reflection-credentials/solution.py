@@ -28,9 +28,13 @@ class Origin(NamedTuple):
 
     def serialise(self) -> str:
         """Canonical text form, omitting the port when it is the default."""
+        # urlsplit().hostname drops the brackets of an IPv6 literal; an
+        # origin needs them back, or "https://::1:8443" never matches the
+        # browser's "https://[::1]:8443".
+        host = f"[{self.host}]" if ":" in self.host else self.host
         if DEFAULT_PORTS[self.scheme] == self.port:
-            return f"{self.scheme}://{self.host}"
-        return f"{self.scheme}://{self.host}:{self.port}"
+            return f"{self.scheme}://{host}"
+        return f"{self.scheme}://{host}:{self.port}"
 
 
 def naive_cors_headers(request_origin: str | None) -> dict[str, str]:
