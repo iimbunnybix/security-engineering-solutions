@@ -72,6 +72,7 @@ Every problem folder has the same structure:
 | 055 | [The shop's mail provider suspended sending after the "Contact us" form mailed spam to thousands of strangers](problems/055-crlf-in-contact-form-subject-injects-bcc-header) |
 | 056 | [Customers who signed up with "Sign in with Google" found a stranger still logged in to their new account](problems/056-pre-registered-unverified-account-hijacked-after-oauth-login) |
 | 057 | [Payouts were marked "paid" by webhook calls whose signature header was just "sha256="](problems/057-truncated-webhook-signature-prefix-accepted) |
+| 058 | [Restoring a workspace backup overwrote the app's own settings file and turned on debug mode](problems/058-tar-restore-symlink-member-writes-outside-target) |
 <!-- INDEX:END -->
 
 ## Run the tests
