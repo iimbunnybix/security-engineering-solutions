@@ -71,6 +71,7 @@ Every problem folder has the same structure:
 | 054 | [Password reset links for real users were delivered to an attacker's lookalike email address](problems/054-unicode-case-mapped-reset-email-sent-to-attacker) |
 | 055 | [The shop's mail provider suspended sending after the "Contact us" form mailed spam to thousands of strangers](problems/055-crlf-in-contact-form-subject-injects-bcc-header) |
 | 056 | [Customers who signed up with "Sign in with Google" found a stranger still logged in to their new account](problems/056-pre-registered-unverified-account-hijacked-after-oauth-login) |
+| 057 | [Payouts were marked "paid" by webhook calls whose signature header was just "sha256="](problems/057-truncated-webhook-signature-prefix-accepted) |
 <!-- INDEX:END -->
 
 ## Run the tests
