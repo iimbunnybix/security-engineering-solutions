@@ -93,6 +93,14 @@ class FixStillImportsNormalFiles(unittest.TestCase):
         with self.assertRaises(UnsafeXml):
             safe_parse_customers(b"<customers><customer>")
 
+    def test_unknown_encoding_declaration_is_reported_as_unsafe_xml(self) -> None:
+        with self.assertRaises(UnsafeXml):
+            safe_parse_customers(b'<?xml version="1.0" encoding="bogus"?><customers/>')
+
+    def test_multibyte_utf7_declaration_is_reported_as_unsafe_xml(self) -> None:
+        with self.assertRaises(UnsafeXml):
+            safe_parse_customers(b'<?xml version="1.0" encoding="UTF-7"?><customers/>')
+
 
 if __name__ == "__main__":
     unittest.main()

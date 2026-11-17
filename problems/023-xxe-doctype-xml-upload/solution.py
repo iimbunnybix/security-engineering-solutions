@@ -128,7 +128,15 @@ def safe_parse_customers(upload: bytes) -> list[Customer]:
     parser = _build_hardened_parser(collector)
     try:
         parser.Parse(upload, True)
+    except UnsafeXml:
+        # Raised by our own handlers; UnsafeXml is a ValueError, so let it
+        # through unchanged before the broader ValueError clause below.
+        raise
     except xml.parsers.expat.ExpatError as error:
         # Malformed XML is a client error too; report it the same way.
         raise UnsafeXml(f"malformed XML: {error}") from error
+    except (LookupError, ValueError) as error:
+        # expat raises these for an unknown or multi-byte encoding declaration
+        # (encoding="bogus", "UTF-7"); without this a one-line file is a 500.
+        raise UnsafeXml(f"unsupported encoding: {error}") from error
     return collector.customers
