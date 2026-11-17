@@ -73,6 +73,7 @@ Every problem folder has the same structure:
 | 056 | [Customers who signed up with "Sign in with Google" found a stranger still logged in to their new account](problems/056-pre-registered-unverified-account-hijacked-after-oauth-login) |
 | 057 | [Payouts were marked "paid" by webhook calls whose signature header was just "sha256="](problems/057-truncated-webhook-signature-prefix-accepted) |
 | 058 | [Restoring a workspace backup overwrote the app's own settings file and turned on debug mode](problems/058-tar-restore-symlink-member-writes-outside-target) |
+| 059 | [A customer called "acme" could download payroll files belonging to the customer "acme-labs"](problems/059-prefix-check-lets-tenant-acme-read-acme-labs-files) |
 <!-- INDEX:END -->
 
 ## Run the tests
