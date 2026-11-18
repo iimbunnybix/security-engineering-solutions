@@ -86,8 +86,12 @@ class ResetService:
     def __init__(self, base_url: str, allowed_hosts: set[str], users: set[str],
                  outbox: Outbox) -> None:
         parts = urlsplit(base_url)
-        # The base URL is configuration, so fail at startup if it is not https.
-        if parts.scheme != "https" or not parts.hostname or parts.path not in ("", "/"):
+        # The base URL is configuration, so fail at startup if it is not exactly
+        # https://host. A query, fragment, userinfo or backslash would end up in
+        # every reset link and break it or show a look-alike host in the email.
+        has_extras = bool(parts.query or parts.fragment) or parts.username is not None
+        if (parts.scheme != "https" or not parts.hostname or has_extras
+                or "\\" in base_url or parts.path not in ("", "/")):
             raise ValueError("base_url must look like https://host")
         self.base_url = base_url.rstrip("/")
         self.allowed_hosts = {_normalise_host(host) for host in allowed_hosts}

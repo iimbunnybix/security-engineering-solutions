@@ -91,6 +91,14 @@ class FixValidatesConfiguration(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     ResetService(base_url, {OUR_HOST}, set(), Outbox())
 
+    def test_base_url_with_query_fragment_or_userinfo_is_refused(self) -> None:
+        for base_url in ("https://app.shop.example?x=1", "https://app.shop.example#frag",
+                         "https://attacker.example@app.shop.example",
+                         "https://app.shop.example\\@attacker.example"):
+            with self.subTest(base_url=base_url):
+                with self.assertRaises(ValueError):
+                    ResetService(base_url, {OUR_HOST}, set(), Outbox())
+
 
 if __name__ == "__main__":
     unittest.main()
