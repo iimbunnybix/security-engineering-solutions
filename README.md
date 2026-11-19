@@ -78,6 +78,7 @@ Every problem folder has the same structure:
 | 061 | [A 100 KB request of nothing but "[" characters turned the drafts API into a wall of 500 errors](problems/061-deeply-nested-json-body-crashes-api-with-500s) |
 | 062 | [The SMS bill for login codes jumped twenty-fold in a weekend, but logins were flat](problems/062-otp-sms-pumping-runs-up-sms-bill) |
 | 063 | [Buyers paid "verification fees" to an account called "suppоrt" that looked exactly like the real support team](problems/063-homoglyph-username-impersonates-support-account) |
+| 064 | [Credential-stuffing bots logged in to thousands of brand-new accounts on the first try with "Password1"](problems/064-breached-passwords-accepted-at-signup) |
 <!-- INDEX:END -->
 
 ## Run the tests
