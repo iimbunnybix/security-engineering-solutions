@@ -41,6 +41,14 @@ class FixEscapesUntrustedValues(unittest.TestCase):
     def test_terminal_escape_sequence_is_made_visible(self):
         self.assertEqual(escape_value("\x1b[2Jadmin"), '"\\x1b[2Jadmin"')
 
+    def test_bidi_override_character_is_made_visible(self):
+        right_to_left_override = chr(0x202E)
+        self.assertEqual(escape_value("a" + right_to_left_override + "b"), '"a\\u202eb"')
+
+    def test_bidi_isolate_character_is_made_visible(self):
+        left_to_right_isolate = chr(0x2066)
+        self.assertEqual(escape_value(left_to_right_isolate + "x"), '"\\u2066x"')
+
     def test_quote_cannot_close_the_value_early(self):
         self.assertEqual(escape_value('bob" role="admin'), '"bob\\" role=\\"admin"')
 

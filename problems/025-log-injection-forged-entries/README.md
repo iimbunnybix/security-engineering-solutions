@@ -30,6 +30,10 @@ outside the user data and writes every untrusted value as `key="escaped"`:
   stops an attacker from typing a fake `\n`).
 - `\x85`, ` `, ` ` and every other control character (`Cc`) are
   shown as visible code points, e.g. `\x1b`.
+- Invisible format characters (`Cf`), including the bidi overrides such as
+  U+202E that would make a viewer display the rest of the line reversed,
+  are shown as `\u202e`. (This also escapes zero-width joiners inside
+  emoji, which is acceptable in a security log.)
 - Values over 200 characters are truncated, so one request cannot write
   megabytes into the log.
 

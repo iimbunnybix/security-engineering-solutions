@@ -41,6 +41,12 @@ def escape_char(char: str) -> str:
     # colour codes, NUL, backspace...). Show its code point instead.
     if unicodedata.category(char) == "Cc":
         return f"\\x{ord(char):02x}"
+    # Category "Cf" holds the bidi controls (U+202E right-to-left override,
+    # U+2066 isolates...). Left raw they make a viewer render the rest of the
+    # line reversed, so the analyst could read a different event than was
+    # written. Show their code point too.
+    if unicodedata.category(char) == "Cf":
+        return f"\\u{ord(char):04x}"
     return char
 
 
