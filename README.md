@@ -77,6 +77,7 @@ Every problem folder has the same structure:
 | 060 | [An ad partner matched our "anonymised" customer list back to real phone numbers](problems/060-unsalted-phone-hash-reversed-by-enumeration) |
 | 061 | [A 100 KB request of nothing but "[" characters turned the drafts API into a wall of 500 errors](problems/061-deeply-nested-json-body-crashes-api-with-500s) |
 | 062 | [The SMS bill for login codes jumped twenty-fold in a weekend, but logins were flat](problems/062-otp-sms-pumping-runs-up-sms-bill) |
+| 063 | [Buyers paid "verification fees" to an account called "suppоrt" that looked exactly like the real support team](problems/063-homoglyph-username-impersonates-support-account) |
 <!-- INDEX:END -->
 
 ## Run the tests
