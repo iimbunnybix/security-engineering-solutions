@@ -80,6 +80,7 @@ Every problem folder has the same structure:
 | 063 | [Buyers paid "verification fees" to an account called "suppоrt" that looked exactly like the real support team](problems/063-homoglyph-username-impersonates-support-account) |
 | 064 | [Credential-stuffing bots logged in to thousands of brand-new accounts on the first try with "Password1"](problems/064-breached-passwords-accepted-at-signup) |
 | 065 | [Accounts were taken over through password-reset links the owners had requested but not yet used](problems/065-reset-token-in-url-leaks-via-referer-to-analytics) |
+| 066 | [Android users who installed a "coupon" app found strangers logged in to their shopping accounts](problems/066-mobile-oauth-without-pkce-code-intercepted) |
 <!-- INDEX:END -->
 
 ## Run the tests
