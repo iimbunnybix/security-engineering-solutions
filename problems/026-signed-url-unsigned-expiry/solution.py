@@ -22,6 +22,10 @@ Clock = Callable[[], int]
 
 MAX_LINK_LIFETIME_S = 7 * 24 * 3600
 ALLOWED_PARAMS = {"expires", "sig"}
+# Unix seconds fit in 12 digits for tens of thousands of years. Capping the
+# length also keeps int() away from Python's 4300-digit conversion limit,
+# which raises ValueError (an HTTP 500) instead of InvalidLink.
+MAX_EXPIRES_DIGITS = 12
 
 
 class InvalidLink(Exception):
@@ -89,7 +93,7 @@ def strict_query(query_string: str) -> dict[str, str]:
 
 def parse_expires(raw: str) -> int:
     """Expiry must be plain digits (no sign, spaces or decimals)."""
-    if not raw.isascii() or not raw.isdigit():
+    if not raw.isascii() or not raw.isdigit() or len(raw) > MAX_EXPIRES_DIGITS:
         raise InvalidLink("expires must be a whole number of seconds")
     return int(raw)
 

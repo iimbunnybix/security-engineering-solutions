@@ -97,6 +97,15 @@ class FixParsesTheQueryStrictly(unittest.TestCase):
         with self.assertRaises(InvalidLink):
             verify_link(self.key, PATH + f"?expires={NOW + ONE_HOUR}&sig=%C3%A9", NOW)
 
+    def test_huge_expires_is_rejected_not_crashing(self):
+        huge_expires = "9" * 5000
+        with self.assertRaisesRegex(InvalidLink, "whole number"):
+            verify_link(self.key, PATH + f"?expires={huge_expires}&sig=" + "0" * 64, NOW)
+
+    def test_twelve_digit_expires_is_still_parsed(self):
+        with self.assertRaisesRegex(InvalidLink, "bad signature"):
+            verify_link(self.key, replace_expires(self.link, 999_999_999_999), NOW)
+
 
 class FixLimitsLifetime(unittest.TestCase):
     def test_lifetime_over_the_maximum_is_refused(self):
