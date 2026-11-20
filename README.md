@@ -79,6 +79,7 @@ Every problem folder has the same structure:
 | 062 | [The SMS bill for login codes jumped twenty-fold in a weekend, but logins were flat](problems/062-otp-sms-pumping-runs-up-sms-bill) |
 | 063 | [Buyers paid "verification fees" to an account called "suppоrt" that looked exactly like the real support team](problems/063-homoglyph-username-impersonates-support-account) |
 | 064 | [Credential-stuffing bots logged in to thousands of brand-new accounts on the first try with "Password1"](problems/064-breached-passwords-accepted-at-signup) |
+| 065 | [Accounts were taken over through password-reset links the owners had requested but not yet used](problems/065-reset-token-in-url-leaks-via-referer-to-analytics) |
 <!-- INDEX:END -->
 
 ## Run the tests
