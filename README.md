@@ -82,6 +82,7 @@ Every problem folder has the same structure:
 | 065 | [Accounts were taken over through password-reset links the owners had requested but not yet used](problems/065-reset-token-in-url-leaks-via-referer-to-analytics) |
 | 066 | [Android users who installed a "coupon" app found strangers logged in to their shopping accounts](problems/066-mobile-oauth-without-pkce-code-intercepted) |
 | 067 | [Strangers showed up as members of customer workspaces after an invite link was forwarded](problems/067-forwarded-team-invite-link-lets-anyone-join-workspace) |
+| 068 | [Customer-hosted pages on pages.example.com received every visitor's login session](problems/068-parent-domain-session-cookie-sent-to-user-content-subdomain) |
 <!-- INDEX:END -->
 
 ## Run the tests
