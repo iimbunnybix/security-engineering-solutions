@@ -83,6 +83,7 @@ Every problem folder has the same structure:
 | 066 | [Android users who installed a "coupon" app found strangers logged in to their shopping accounts](problems/066-mobile-oauth-without-pkce-code-intercepted) |
 | 067 | [Strangers showed up as members of customer workspaces after an invite link was forwarded](problems/067-forwarded-team-invite-link-lets-anyone-join-workspace) |
 | 068 | [Customer-hosted pages on pages.example.com received every visitor's login session](problems/068-parent-domain-session-cookie-sent-to-user-content-subdomain) |
+| 069 | [Users clicked "Claim your prize" on another site and found their account deleted](problems/069-account-deletion-page-framed-clickjacking) |
 <!-- INDEX:END -->
 
 ## Run the tests
