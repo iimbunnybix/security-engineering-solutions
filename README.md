@@ -85,6 +85,7 @@ Every problem folder has the same structure:
 | 068 | [Customer-hosted pages on pages.example.com received every visitor's login session](problems/068-parent-domain-session-cookie-sent-to-user-content-subdomain) |
 | 069 | [Users clicked "Claim your prize" on another site and found their account deleted](problems/069-account-deletion-page-framed-clickjacking) |
 | 070 | [A scanner downloaded the marketing site's .git folder and .env file, including a deploy token and a payment API key](problems/070-web-root-serves-git-directory-and-env-file) |
+| 071 | [Accounts were taken over through "forgot password" by sending {"$ne": null} as the reset token](problems/071-nosql-operator-in-reset-token-takes-over-accounts) |
 <!-- INDEX:END -->
 
 ## Run the tests
