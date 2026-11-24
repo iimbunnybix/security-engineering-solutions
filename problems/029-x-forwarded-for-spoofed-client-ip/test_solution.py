@@ -96,6 +96,14 @@ class FixClientIpResolution(unittest.TestCase):
         headers = {"X-Forwarded-For": "2001:db8::42"}
         self.assertEqual(fixed_ip("fd00::1", headers), "2001:db8::42")
 
+    def test_ipv4_mapped_proxy_peer_is_trusted(self):
+        headers = {"X-Forwarded-For": "203.0.113.7"}
+        self.assertEqual(fixed_ip("::ffff:10.0.0.5", headers), "203.0.113.7")
+
+    def test_ipv4_mapped_client_in_header_is_returned_as_ipv4(self):
+        headers = {"X-Forwarded-For": "::ffff:203.0.113.7"}
+        self.assertEqual(fixed_ip(LOAD_BALANCER, headers), "203.0.113.7")
+
     def test_invalid_peer_is_rejected(self):
         with self.assertRaises(ValueError):
             fixed_ip("unix-socket", {})
@@ -125,6 +133,17 @@ class FixThrottleAndAllowlist(unittest.TestCase):
     def test_real_office_laptop_is_allowed_into_admin(self):
         peer, headers = via_load_balancer(real_client=OFFICE_LAPTOP)
         self.assertTrue(admin_allowed(fixed_ip(peer, headers), OFFICE_VPN))
+
+    def test_clients_behind_a_mapped_proxy_get_separate_budgets(self):
+        throttle = LoginThrottle(FakeClock(), fixed_ip)
+        mapped_proxy = "::ffff:" + LOAD_BALANCER
+        for _ in range(MAX_FAILURES_PER_IP):
+            throttle.record_failure(mapped_proxy, {"X-Forwarded-For": ATTACKER})
+        self.assertFalse(throttle.allowed(mapped_proxy, {"X-Forwarded-For": ATTACKER}))
+        self.assertTrue(throttle.allowed(mapped_proxy, {"X-Forwarded-For": "203.0.113.50"}))
+
+    def test_mapped_vpn_address_is_allowed_into_admin(self):
+        self.assertTrue(admin_allowed("::ffff:" + OFFICE_LAPTOP, OFFICE_VPN))
 
     def test_garbage_ip_is_never_on_the_allowlist(self):
         self.assertFalse(admin_allowed("not-an-ip", OFFICE_VPN))

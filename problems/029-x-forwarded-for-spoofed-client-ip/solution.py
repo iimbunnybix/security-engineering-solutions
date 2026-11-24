@@ -31,11 +31,20 @@ def parse_networks(cidrs: Iterable[str]) -> list[IPNetwork]:
 
 
 def parse_ip(text: str) -> IPAddress | None:
-    """Parse one address from a header, or None if it is not an IP at all."""
+    """Parse one address from a header, or None if it is not an IP at all.
+
+    IPv4-mapped IPv6 addresses (``::ffff:10.0.0.5``) are turned back into plain
+    IPv4. WHY: dual-stack sockets report IPv4 peers in that form, and without
+    this a mapped proxy never matches ``10.0.0.0/16`` and one client looks
+    like two different IPs to the throttle.
+    """
     try:
-        return ipaddress.ip_address(text.strip())
+        address = ipaddress.ip_address(text.strip())
     except ValueError:
         return None
+    if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped is not None:
+        return address.ipv4_mapped
+    return address
 
 
 def in_any(address: IPAddress, networks: list[IPNetwork]) -> bool:
