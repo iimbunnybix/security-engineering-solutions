@@ -137,6 +137,18 @@ class FixSignedJsonCookie(unittest.TestCase):
                 with self.assertRaises(InvalidCookie):
                     self.read(cookie)
 
+    def test_non_ascii_signature_is_rejected_not_crashing(self):
+        cookie = issue_cookie(self.key, "u-1", "dark", self.clock)
+        body, _signature = cookie.split(".")
+        with self.assertRaises(InvalidCookie):
+            self.read(body + ".\u00e9")
+
+    def test_non_ascii_body_is_rejected_not_crashing(self):
+        cookie = issue_cookie(self.key, "u-1", "dark", self.clock)
+        _body, signature = cookie.split(".")
+        with self.assertRaises(InvalidCookie):
+            self.read("\u00e9" + "." + signature)
+
     def test_issuing_a_cookie_with_an_invalid_theme_fails(self):
         with self.assertRaises(InvalidCookie):
             issue_cookie(self.key, "u-1", "neon", self.clock)

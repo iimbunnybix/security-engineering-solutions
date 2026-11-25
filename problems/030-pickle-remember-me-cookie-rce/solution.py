@@ -80,7 +80,11 @@ def issue_cookie(key: bytes, user_id: str, theme: str, clock: Clock) -> str:
 
 def _verified_body(key: bytes, cookie: str) -> bytes:
     """Return the JSON bytes only if the HMAC over them is correct."""
-    if len(cookie) > MAX_COOKIE_LENGTH or cookie.count(SEPARATOR) != 1:
+    # WHY isascii: our cookies are pure base64url, and compare_digest raises
+    # TypeError on non-ASCII str, which would turn a junk cookie into a 500.
+    if len(cookie) > MAX_COOKIE_LENGTH or not cookie.isascii():
+        raise InvalidCookie("malformed cookie")
+    if cookie.count(SEPARATOR) != 1:
         raise InvalidCookie("malformed cookie")
     body, signature = cookie.split(SEPARATOR)
     # WHY first: nothing attacker-made is parsed until we know we wrote it.
