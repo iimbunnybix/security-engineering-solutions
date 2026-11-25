@@ -88,6 +88,7 @@ Every problem folder has the same structure:
 | 071 | [Accounts were taken over through "forgot password" by sending {"$ne": null} as the reset token](problems/071-nosql-operator-in-reset-token-takes-over-accounts) |
 | 072 | [A revoked contractor downloaded confidential files while the policy service was timing out](problems/072-authorization-fails-open-when-policy-service-times-out) |
 | 073 | [Anyone on the internet could download the full customer list from a new "export" link](problems/073-route-without-permission-check-defaults-to-public) |
+| 074 | [A workspace manager made his accomplice an owner, who then exported and deleted the workspace](problems/074-manager-grants-owner-role-to-accomplice) |
 <!-- INDEX:END -->
 
 ## Run the tests
