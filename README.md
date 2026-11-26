@@ -89,6 +89,7 @@ Every problem folder has the same structure:
 | 072 | [A revoked contractor downloaded confidential files while the policy service was timing out](problems/072-authorization-fails-open-when-policy-service-times-out) |
 | 073 | [Anyone on the internet could download the full customer list from a new "export" link](problems/073-route-without-permission-check-defaults-to-public) |
 | 074 | [A workspace manager made his accomplice an owner, who then exported and deleted the workspace](problems/074-manager-grants-owner-role-to-accomplice) |
+| 075 | [The orders API's 500 error page showed anyone the production database password](problems/075-500-error-page-shows-traceback-with-database-password) |
 <!-- INDEX:END -->
 
 ## Run the tests
