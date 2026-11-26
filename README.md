@@ -90,6 +90,7 @@ Every problem folder has the same structure:
 | 073 | [Anyone on the internet could download the full customer list from a new "export" link](problems/073-route-without-permission-check-defaults-to-public) |
 | 074 | [A workspace manager made his accomplice an owner, who then exported and deleted the workspace](problems/074-manager-grants-owner-role-to-accomplice) |
 | 075 | [The orders API's 500 error page showed anyone the production database password](problems/075-500-error-page-shows-traceback-with-database-password) |
+| 076 | [An attacker ran code on the support portal by uploading "shell.PHP" past the upload filter](problems/076-upload-extension-denylist-bypassed-by-case-and-trailing-dot) |
 <!-- INDEX:END -->
 
 ## Run the tests
