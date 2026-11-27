@@ -91,6 +91,7 @@ Every problem folder has the same structure:
 | 074 | [A workspace manager made his accomplice an owner, who then exported and deleted the workspace](problems/074-manager-grants-owner-role-to-accomplice) |
 | 075 | [The orders API's 500 error page showed anyone the production database password](problems/075-500-error-page-shows-traceback-with-database-password) |
 | 076 | [An attacker ran code on the support portal by uploading "shell.PHP" past the upload filter](problems/076-upload-extension-denylist-bypassed-by-case-and-trailing-dot) |
+| 077 | [Two accounts registered the same afternoon were deleting threads with admin powers nobody gave them](problems/077-ecb-encrypted-profile-cookie-block-swap-grants-admin) |
 <!-- INDEX:END -->
 
 ## Run the tests
