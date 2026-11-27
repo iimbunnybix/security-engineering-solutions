@@ -83,8 +83,16 @@ def canonicalize(raw_path: str) -> str:
             raise BadRequest("ambiguous characters in path")
     if not path.startswith("/"):
         raise BadRequest("path must start with /")
-    _reject_escaping_root(unquote(path))
+    # Strip ";params" first, exactly like the router does, so "..;x" is
+    # counted as ".." here too and cannot slip past the root check.
+    _reject_escaping_root(unquote(_strip_segment_params(path)))
     return router_normalize(path)
+
+
+def _strip_segment_params(path: str) -> str:
+    """Drop ';params' from every segment, the same way router_normalize does."""
+    segments = [segment.split(";", 1)[0] for segment in path.split("/")]
+    return "/".join(segments)
 
 
 def _reject_escaping_root(decoded_path: str) -> None:

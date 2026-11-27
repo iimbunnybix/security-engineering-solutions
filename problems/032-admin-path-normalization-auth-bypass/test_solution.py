@@ -82,6 +82,10 @@ class FixRejectsAmbiguousPaths(unittest.TestCase):
         self.assertEqual(safe_handle("/../admin/users", CUSTOMER)[0], 400)
         self.assertEqual(safe_handle("/%2e%2e/admin/users", CUSTOMER)[0], 400)
 
+    def test_dot_dot_with_params_above_root_is_rejected(self):
+        self.assertEqual(safe_handle("/..;x/admin/users", ADMIN)[0], 400)
+        self.assertEqual(safe_handle("/%2e%2e;/admin/users", ADMIN)[0], 400)
+
     def test_relative_path_is_rejected(self):
         with self.assertRaises(BadRequest):
             canonicalize("admin/users")
