@@ -94,6 +94,7 @@ Every problem folder has the same structure:
 | 077 | [Two accounts registered the same afternoon were deleting threads with admin powers nobody gave them](problems/077-ecb-encrypted-profile-cookie-block-swap-grants-admin) |
 | 078 | [A customer's password was changed again 10 minutes after she reset it herself, from the same reset link](problems/078-password-reset-link-works-again-after-use) |
 | 079 | [A support agent with a read-only role deleted a customer's account from the admin console](problems/079-substring-role-check-grants-admin-to-readonly-admin) |
+| 080 | [A seller's payouts went to a stranger's bank account, and the audit log said the seller changed it themselves](problems/080-impersonation-actions-logged-as-the-customer) |
 <!-- INDEX:END -->
 
 ## Run the tests
