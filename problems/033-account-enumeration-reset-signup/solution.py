@@ -107,8 +107,11 @@ class EmailOutbox:
         """Background worker step: send everything queued so far. Returns how many were sent."""
         sent = 0
         while self.pending:
-            email = self.pending.pop(0)
+            # Remove the email only after send() succeeds, so a transient SMTP
+            # error leaves it queued for the next worker run instead of losing it.
+            email = self.pending[0]
             mailer.send(email.to, email.template, email.data)
+            self.pending.pop(0)
             sent += 1
         return sent
 

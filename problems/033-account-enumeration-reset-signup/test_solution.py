@@ -44,6 +44,20 @@ class FakeMailer:
         self.sent.append((to, template, data))
 
 
+class FailsOnceMailer(FakeMailer):
+    """Raises a transient SMTP error on its first send, then works normally."""
+
+    def __init__(self, clock: FakeClock) -> None:
+        super().__init__(clock)
+        self.failed_already = False
+
+    def send(self, to: str, template: str, data: dict) -> None:
+        if not self.failed_already:
+            self.failed_already = True
+            raise ConnectionError("SMTP 421 try again later")
+        super().send(to, template, data)
+
+
 def make_users() -> dict[str, Account]:
     return {email: Account(email, "existing-hash", verified=True) for email in REGISTERED}
 
@@ -175,6 +189,26 @@ class FixUniformResponses(unittest.TestCase):
 
     def test_normalization_trims_and_lowercases(self):
         self.assertEqual(normalize_email("  Chen@Example.Test\n"), "chen@example.test")
+
+
+class FixOutboxRetries(unittest.TestCase):
+    def test_email_stays_queued_when_smtp_fails_and_is_sent_on_retry(self):
+        clock = FakeClock()
+        outbox = EmailOutbox()
+        api = AccountEndpoints(make_users(), FakeHasher(clock), outbox)
+        api.forgot_password("alice@example.test")
+        api.forgot_password("bob@example.test")
+        mailer = FailsOnceMailer(clock)
+
+        with self.assertRaises(ConnectionError):
+            outbox.deliver_all(mailer)
+        self.assertEqual([email.to for email in outbox.pending],
+                         ["alice@example.test", "bob@example.test"])
+
+        self.assertEqual(outbox.deliver_all(mailer), 2)
+        self.assertEqual([sent[0] for sent in mailer.sent],
+                         ["alice@example.test", "bob@example.test"])
+        self.assertEqual(outbox.pending, [])
 
 
 if __name__ == "__main__":
